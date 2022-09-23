@@ -1,0 +1,3 @@
+# Stack
+A realisation of stack data structure on C with used Canary and Hash protection
+## I am to lazy to write readme so far...
