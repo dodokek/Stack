@@ -1,13 +1,17 @@
 #ifndef STACK_H
 #define STACK_H
 
-typedef long long int lld;
+#define StackDump(X) StackDump_ (X, __FILE__, __func__, __LINE__)
+#define StackCtor(X, Y) StackCtor_ (X, Y, #X)
+
+#include "config.h"
 
 struct Stack
 {
     elem_t* data;
     int size;
     int capacity;
+    const char* name;
 };
 
 
@@ -20,16 +24,22 @@ enum ERR_CODES
     INVALID_CAPACITY = 16
 };
 
-void StackCtor (Stack* self, size_t capacity);
+void StackCtor_ (Stack* self, size_t capacity, const char* name);
 
 void StackDtor (Stack* self, size_t capacity);
 
 lld StackVerificator (Stack* self);
 
-int GetBit(lld n, int pos);
+int GetBit (lld n, int pos);
 
 void PutErrCodes (lld err);
 
 void PrintError (int error_code);
+
+void StackDump_ (Stack* self, const char* filename, const char* funcname, int line);
+
+void PutDividers();
+
+void Verificate (Stack* self);
 
 #endif
