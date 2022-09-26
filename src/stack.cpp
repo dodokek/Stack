@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
+
 
 #include "include/stack.h"
 
@@ -11,12 +8,84 @@ int main()
     StackCtor(&stk1, 5);
 
     elem_t test_data[] = {2, 5, 7, 9};
-    Stack stk2 = {test_data, -1, 10, "&stk2"};
+    Stack stk2 = {test_data, 4, 10, "&stk2"};
 
-    StackDump (&stk1);
-    StackDump (&stk2);
+    for (int i = 0; i < 10; i++)
+    {
+        StackPush (&stk1, i);    
+    }
 
-    StackDtor(&stk1, 5);
+    for (int i = 0; i < 8; i++)
+    {
+        printf("Popped elem: %d\n", StackPop (&stk1));    
+    }
+
+    elem_t test_elem = StackPop(&stk1);
+
+    StackPush(&stk1, test_elem + 1);
+
+    printf("Test elem %d", test_elem);
+
+    StackDtor(&stk1);
+}
+
+
+elem_t StackPop (Stack* self)
+{
+    StackResize (self, DECREASE);
+    StackDump(self);
+    elem_t tmp = self->data[self->size - 1];
+    self->size--;
+
+    return tmp;     
+}
+
+
+void StackPush (Stack* self, elem_t value)
+{
+    StackResize (self, INCREASE);
+    StackDump(self);
+    self->data[self->size] = value;
+    self->size++;
+}
+
+
+void StackResize (Stack* self, int mode)
+{
+    switch (mode)
+    {
+    case INCREASE:
+        if (self->capacity - self->size < 2)
+        {
+            self->data = (elem_t*) realloc((elem_t*) self->data, sizeof(elem_t)*(self->capacity) * 2);
+            self->capacity *= 2;
+
+            for (int i = self->size; i < self->capacity; i++)
+            {
+                self->data[i] = 61441;
+            }
+        }
+        break;
+    
+    case DECREASE:
+        if (self->capacity - self->size > 4)
+        {
+            self->data = (elem_t*) realloc((elem_t*) self->data, sizeof(elem_t)*(self->capacity) * 2);
+            self->capacity /= 1.5;
+
+            for (int i = self->size; i < self->capacity; i++)
+            {
+                self->data[i] = 61441;
+            }
+        }
+
+        break;
+
+    default:
+        printf ("STACK RESIZE ERROR\n");
+        break;
+    }
+        
 }
 
 
@@ -29,7 +98,7 @@ void StackCtor_ (Stack* self, size_t capacity, const char* name)
 }
 
 
-void StackDtor (Stack* self, size_t capacity)
+void StackDtor (Stack* self)
 {
     free (self->data);
     self->size = -1;
@@ -45,7 +114,7 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
 
     printf ("At file: %s\n", filename);
 
-    printf ("Observing stack[%p] - %s, function: %s (%d)):\n", self, self->name, funcname, line);
+    printf ("Observing stack[%p] - %s, function: %s (Line %d)):\n", self, self->name, funcname, line);
     printf ("    Size: %d\n", self->size);
     printf ("    Capacity: %d\n    Data array:\n", self->capacity);
 
@@ -54,7 +123,7 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
         if (i < self->size) printf ("       *[%d]: %d\n", i, self->data[i]);
         else
         {
-            printf ("        [%d]: %3d\n", i, self->data[i]);
+            printf ("        [%d]: %x\n", i, self->data[i]);
         }
     }
 
@@ -73,14 +142,14 @@ lld StackVerificator (Stack *self)
 
     if (self->data == nullptr)
         err += 2;
-    if (self->size < 0)
+    if (self->size <= 0)
         err += 4;
     if (self->capacity < self->size)
         err += 8;
     if (self->capacity <= 0)
         err += 16;
 
-    return err;
+    return err; 
 }
 
 
