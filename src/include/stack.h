@@ -35,7 +35,8 @@ enum ERR_CODES
     NULL_DATA  = 2,
     INVALID_SIZE = 4,
     N_ENOUGH_SIZE = 8,
-    INVALID_CAPACITY = 16
+    INVALID_CAPACITY = 16,
+    DATA_ACCESS_VIOLATION = 32
 };
 
 void StackCtor_ (Stack* self, size_t capacity, const char* name);

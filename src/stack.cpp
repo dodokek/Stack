@@ -7,9 +7,6 @@ int main()
     Stack stk1 = {};
     StackCtor(&stk1, 5);
 
-    elem_t test_data[] = {2, 5, 7, 9};
-    Stack stk2 = {test_data, 4, 10, "&stk2"};
-
     for (int i = 0; i < 10; i++)
     {
         StackPush (&stk1, i);    
@@ -19,6 +16,9 @@ int main()
     {
         printf("Popped elem: %d\n", StackPop (&stk1));    
     }
+
+    stk1.data[0] = 0;
+    StackDump (&stk1);
 
     elem_t test_elem = StackPop(&stk1);
 
@@ -34,7 +34,12 @@ elem_t StackPop (Stack* self)
 {
     StackResize (self, DECREASE);
     StackDump(self);
-    elem_t tmp = self->data[self->size - 1];
+
+    elem_t tmp = self->data[self->size - 2];
+    
+    self->data[self->size - 2] = RIGHT_COCK;
+    self->data[self->size - 1] = POISON_NUM;
+
     self->size--;
 
     return tmp;     
@@ -44,8 +49,9 @@ elem_t StackPop (Stack* self)
 void StackPush (Stack* self, elem_t value)
 {
     StackResize (self, INCREASE);
-    StackDump(self);
-    self->data[self->size] = value;
+    StackDump (self);
+    self->data[self->size - 1] = value;
+    self->data[self->size]     = RIGHT_COCK;
     self->size++;
 }
 
@@ -62,9 +68,10 @@ void StackResize (Stack* self, int mode)
 
             for (int i = self->size; i < self->capacity; i++)
             {
-                self->data[i] = 61441;
+                self->data[i] = POISON_NUM;
             }
         }
+
         break;
     
     case DECREASE:
@@ -75,7 +82,7 @@ void StackResize (Stack* self, int mode)
 
             for (int i = self->size; i < self->capacity; i++)
             {
-                self->data[i] = 61441;
+                self->data[i] = POISON_NUM;
             }
         }
 
@@ -92,9 +99,12 @@ void StackResize (Stack* self, int mode)
 void StackCtor_ (Stack* self, size_t capacity, const char* name)
 {
     self->data = (elem_t *)calloc(sizeof(elem_t), capacity);
-    self->size = 0;
+    //StackPush (self, RIGHT_COCK);
+    self->size = 2;
     self->capacity = capacity;
     self->name = ++name;
+    self->data[0] = LEFT_COCK;    
+    self->data[1] = RIGHT_COCK;    
 }
 
 
@@ -120,7 +130,15 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
 
     for (int i = 0; i < self->capacity; i++)
     {
-        if (i < self->size) printf ("       *[%d]: %d\n", i, self->data[i]);
+        if (i < self->size) 
+        {
+            if (i == 0 || i == self->size - 1) printf ("       *[%d]: %x\n", i, self->data[i]);
+            else
+            {
+                printf ("       *[%d]: %d\n", i, self->data[i]);
+            }
+            
+        }
         else
         {
             printf ("        [%d]: %x\n", i, self->data[i]);
@@ -148,6 +166,8 @@ lld StackVerificator (Stack *self)
         err += 8;
     if (self->capacity <= 0)
         err += 16;
+    if (self->data[0] != LEFT_COCK || self->data[self->size-1] != RIGHT_COCK)
+        err += 32;
 
     return err; 
 }
@@ -206,8 +226,12 @@ void PrintError (int error_code)
         printf("INVALID CAPACITY\n");
         break;
 
+    case DATA_ACCESS_VIOLATION:
+        printf("DATA ARRAY WAS CHANGED WTIHOUT THE PERMISSION, HANDS OFF!\n");
+        break;
+
     default:
-        printf("Idk, man. Somethink spooky. Error code %d", error_code);
+        printf("Idk, man. Something spooky. Error code %d", error_code);
     };
 }
 
