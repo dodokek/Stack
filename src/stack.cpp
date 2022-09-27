@@ -6,25 +6,17 @@ int main()
 {
     Stack stk1 = {};
     StackCtor(&stk1, 5);
-
-    for (int i = 0; i < 10; i++)
+    
+    for (int i = 0; i < 3; i++)
     {
         StackPush (&stk1, i);    
     }
 
-    for (int i = 0; i < 8; i++)
+    /*for (int i = 0; i < 8; i++)
     {
         printf("Popped elem: %d\n", StackPop (&stk1));    
-    }
-
-    stk1.data[0] = 0;
-    StackDump (&stk1);
-
-    elem_t test_elem = StackPop(&stk1);
-
-    StackPush(&stk1, test_elem + 1);
-
-    printf("Test elem %d", test_elem);
+    }*/
+    
 
     StackDtor(&stk1);
 }
@@ -32,6 +24,7 @@ int main()
 
 elem_t StackPop (Stack* self)
 {
+    Verificate (self);
     StackResize (self, DECREASE);
     StackDump(self);
 
@@ -42,17 +35,39 @@ elem_t StackPop (Stack* self)
 
     self->size--;
 
+    HASH_STACK;
+
     return tmp;     
 }
 
 
 void StackPush (Stack* self, elem_t value)
 {
+    Verificate (self);
     StackResize (self, INCREASE);
     StackDump (self);
+
     self->data[self->size - 1] = value;
     self->data[self->size]     = RIGHT_COCK;
     self->size++;
+
+    HASH_STACK;
+}
+
+
+void StackCtor_ (Stack* self, size_t capacity, const char* name)
+{
+    self->data = (elem_t *)calloc(sizeof(elem_t), capacity);
+
+    self->size = 2;
+    self->capacity = capacity;
+    self->name = name + 1; // skips '&' symbol in the name
+
+    self->data[0] = LEFT_COCK;    
+    self->data[1] = RIGHT_COCK;  
+
+    HASH_STACK;
+
 }
 
 
@@ -92,19 +107,9 @@ void StackResize (Stack* self, int mode)
         printf ("STACK RESIZE ERROR\n");
         break;
     }
+
+    HASH_STACK;
         
-}
-
-
-void StackCtor_ (Stack* self, size_t capacity, const char* name)
-{
-    self->data = (elem_t *)calloc(sizeof(elem_t), capacity);
-    //StackPush (self, RIGHT_COCK);
-    self->size = 2;
-    self->capacity = capacity;
-    self->name = ++name;
-    self->data[0] = LEFT_COCK;    
-    self->data[1] = RIGHT_COCK;    
 }
 
 
@@ -120,12 +125,13 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
 {
     PutDividers();
     
-    Verificate (self); 
+    //Verificate (self); 
 
     printf ("At file: %s\n", filename);
 
     printf ("Observing stack[%p] - %s, function: %s (Line %d)):\n", self, self->name, funcname, line);
     printf ("    Size: %d\n", self->size);
+    printf ("    Hash: %lld\n", self->hash);
     printf ("    Capacity: %d\n    Data array:\n", self->capacity);
 
     for (int i = 0; i < self->capacity; i++)
@@ -169,6 +175,13 @@ lld StackVerificator (Stack *self)
     if (self->data[0] != LEFT_COCK || self->data[self->size-1] != RIGHT_COCK)
         err += 32;
 
+    lld hash = HashFunc (self->data, sizeof (self->data) * sizeof (self->size));
+
+    if (self->hash != hash)
+    {
+        err += 64;
+        printf ("Expected %lld , got %lld \n", self->hash, hash);
+    }
     return err; 
 }
 
@@ -179,6 +192,8 @@ void Verificate (Stack* self)
 
     printf("Error code = %d\n", err);
     PutErrCodes (err);
+
+    if (err == 0) printf ("ok\n");
 }
 
 
@@ -217,10 +232,10 @@ void PrintError (int error_code)
         printf("NULL DATA POINTER\n");
         break;
     case INVALID_SIZE:
-        printf("INVALID SIZE, below zero probably\n");
+        printf("INVALID SIZE, below zero probably.\n");
         break;
     case N_ENOUGH_SIZE:
-        printf("N ENOUGH SIZE, Not enought size was located\n");
+        printf("N ENOUGH SIZE, Not enought size was located.\n");
         break;
     case INVALID_CAPACITY:
         printf("INVALID CAPACITY\n");
@@ -230,10 +245,33 @@ void PrintError (int error_code)
         printf("DATA ARRAY WAS CHANGED WTIHOUT THE PERMISSION, HANDS OFF!\n");
         break;
 
+    case STACK_MEMORY_CURRUPTION:
+        printf("MEMORY GIVEN FOR CURRENT STACK WAS CURRUPTED, further actions are unsafe.\n");
+        break;
+
     default:
-        printf("Idk, man. Something spooky. Error code %d", error_code);
+        printf("Idk, man. Something spooky. Error code %d\n", error_code);
     };
 }
+
+
+ull_i HashFunc (void* ptr, size_t size)
+{
+    assert (ptr != nullptr);
+
+    ull_i h = 0xFACFAC;
+
+    char* cur_ptr = (char*) ptr;
+    char* end_ptr = cur_ptr + size;
+
+    for (; cur_ptr != end_ptr; cur_ptr++)
+    {
+        h = ((h % (1 << 30)) * 2 + *cur_ptr);
+    }
+    printf ("Hash result: %lld, size = %u\n", size);
+
+    return h;
+} 
 
 
 void PutDividers()
