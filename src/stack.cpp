@@ -7,17 +7,18 @@ int main()
     Stack stk1 = {};
     StackCtor(&stk1, 5);
     
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 5; i++)
     {
         StackPush (&stk1, i);    
     }
 
     stk1.data[1] = 4545;
     StackDump (&stk1);
-    /*for (int i = 0; i < 8; i++)
+
+    for (int i = 0; i < 4; i++)
     {
         printf("Popped elem: %d\n", StackPop (&stk1));    
-    }*/
+    }
     
 
     StackDtor(&stk1);
@@ -64,12 +65,26 @@ void StackCtor_ (Stack* self, size_t capacity, const char* name)
     self->size = 2;
     self->capacity = capacity;
     self->name = name + 1; // skips '&' symbol in the name
+    self->hash = 0;
 
     self->data[0] = LEFT_COCK;    
     self->data[1] = RIGHT_COCK;  
 
-    HASH_STACK;
 
+    HASH_STACK;
+}
+
+
+void* recalloc (void* ptr, int len_old, int len_new, size_t size)
+{
+    void* new_ptr = nullptr;
+
+    new_ptr = (void*) calloc (len_new, size);
+
+    memcpy (new_ptr, ptr, (len_old < len_new) ? len_old : len_new);
+    free (ptr);
+    
+    return new_ptr;
 }
 
 
@@ -80,7 +95,7 @@ void StackResize (Stack* self, int mode)
     case INCREASE:
         if (self->capacity - self->size < 2)
         {
-            self->data = (elem_t*) realloc((elem_t*) self->data, sizeof(elem_t)*(self->capacity) * 2);
+            self->data = (elem_t*) recalloc (self->data, self->capacity, self->capacity * 2, sizeof (elem_t));
             self->capacity *= 2;
 
             for (int i = self->size; i < self->capacity; i++)
@@ -94,7 +109,7 @@ void StackResize (Stack* self, int mode)
     case DECREASE:
         if (self->capacity - self->size > 4)
         {
-            self->data = (elem_t*) realloc((elem_t*) self->data, sizeof(elem_t)*(self->capacity) * 2);
+            self->data = (elem_t*) recalloc (self->data, self->capacity, self->capacity / 1.5, sizeof (elem_t));
             self->capacity /= 1.5;
 
             for (int i = self->size; i < self->capacity; i++)
@@ -133,7 +148,7 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
 
     printf ("Observing stack[%p] - %s, function: %s (Line %d)):\n", self, self->name, funcname, line);
     printf ("    Size: %d\n", self->size);
-    printf ("    Hash: %lld\n", self->hash);
+    printf ("    Hash: %lld \n", self->hash);
     printf ("    Capacity: %d\n    Data array:\n", self->capacity);
 
     for (int i = 0; i < self->capacity; i++)
@@ -161,7 +176,7 @@ lld StackVerificator (Stack *self)
 {
     lld err = 0;
     
-    printf ("-------------Verifying stack: %p--------------\n", self);
+    printf ("-------------Verifying stack: %p---------------------\n", self);
 
     if (self == nullptr)
     {
@@ -252,7 +267,7 @@ void PrintError (int error_code)
         break;
 
     case STACK_MEMORY_CURRUPTION:
-        printf("MEMORY GIVEN FOR CURRENT STACK WAS CURRUPTED, further actions are unsafe.\n");
+        printf("MEMORY GIVEN FOR CURRENT STACK WAS CORRUPTED, further actions are unsafe.\n");
         break;
 
     default:

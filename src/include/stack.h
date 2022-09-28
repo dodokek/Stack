@@ -15,13 +15,29 @@
 #define StackCtor(X, Y) StackCtor_ (X, Y, #X)
 #define HASH_STACK self->hash = HashFunc (self->data, sizeof (self->data) * self->size);
 
+
+struct StackInfo
+{
+    char* name;
+    char* mother_func;
+    bool  data_corrupted;
+
+    void* hash_ignore_ptr;
+    int*  hash_skip;
+
+};
+
+
 struct Stack
 {
     elem_t* data;
+
     int size;
     int capacity;
     const char* name;
-    ull_i hash;
+    StackInfo stack_info;
+
+    ull_i hash;    
 };
 
 
@@ -67,7 +83,7 @@ void StackPush (Stack* self, elem_t value);
 
 void StackResize (Stack* self, int mode);
 
-elem_t* recalloc (elem_t* self, size_t size, int amount);
+void* recalloc (void* ptr, int len_old, int len_new, size_t size);
 
 ull_i HashFunc (void *ptr, size_t size);
 
