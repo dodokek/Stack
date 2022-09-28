@@ -11,15 +11,16 @@
 
 #include "config.h"
 
-#define StackDump(X) StackDump_ (X, __FILE__, __PRETTY_FUNCTION__, __LINE__)
-#define StackCtor(X, Y) StackCtor_ (X, Y, #X)
+#define StackDump(X) StackDump_ (X)
+#define StackCtor(X, Y) StackCtor_ (X, Y, #X, __FILE__, __PRETTY_FUNCTION__, __LINE__)
 #define HASH_STACK self->hash = HashFunc (self->data, sizeof (self->data) * self->size);
 
 
 struct StackInfo
 {
-    char* name;
-    char* mother_func;
+    const char* name;
+    const char* mother_func;
+    const char* mother_file;
     bool  data_corrupted;
 
     void* hash_ignore_ptr;
@@ -30,12 +31,11 @@ struct StackInfo
 
 struct Stack
 {
-    elem_t* data;
-
     int size;
     int capacity;
-    const char* name;
     StackInfo stack_info;
+
+    elem_t* data;
 
     ull_i hash;    
 };
@@ -59,7 +59,7 @@ enum ERR_CODES
     STACK_MEMORY_CURRUPTION = 64
 };
 
-void StackCtor_ (Stack* self, size_t capacity, const char* name);
+void StackCtor_ (Stack* self, size_t capacity, const char* name, const char* filename, const char* funcname, int line);
 
 void StackDtor (Stack* self);
 

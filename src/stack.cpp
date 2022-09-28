@@ -58,7 +58,7 @@ void StackPush (Stack* self, elem_t value)
 }
 
 
-void StackCtor_ (Stack* self, size_t capacity, const char* name)
+void StackCtor_ (Stack* self, size_t capacity, const char* name, const char* filename, const char* funcname, int line)
 {
     self->data = (elem_t *)calloc(sizeof(elem_t), capacity);
 
@@ -70,6 +70,12 @@ void StackCtor_ (Stack* self, size_t capacity, const char* name)
     self->data[0] = LEFT_COCK;    
     self->data[1] = RIGHT_COCK;  
 
+    self->stack_info.data_corrupted = false;
+    self->stack_info.hash_ignore_ptr = &(self->hash);
+    self->stack_info.hash_skip = 0;
+    self->stack_info.mother_func = funcname;
+    self->stack_info.name = name;
+    self->stack_info.mother_file = filename;
 
     HASH_STACK;
 }
@@ -135,6 +141,10 @@ void StackDtor (Stack* self)
     free (self->data);
     self->size = -1;
     self->capacity = -1;
+    self->hash = 0;
+
+    StackInfo tmp = {};
+    self->stack_info = tmp;
 }
 
 
