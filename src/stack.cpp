@@ -12,6 +12,8 @@ int main()
         StackPush (&stk1, i);    
     }
 
+    stk1.data[1] = 4545;
+    StackDump (&stk1);
     /*for (int i = 0; i < 8; i++)
     {
         printf("Popped elem: %d\n", StackPop (&stk1));    
@@ -154,9 +156,12 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
     PutDividers();
 }
 
+
 lld StackVerificator (Stack *self)
 {
     lld err = 0;
+    
+    printf ("-------------Verifying stack: %p--------------\n", self);
 
     if (self == nullptr)
     {
@@ -175,13 +180,14 @@ lld StackVerificator (Stack *self)
     if (self->data[0] != LEFT_COCK || self->data[self->size-1] != RIGHT_COCK)
         err += 32;
 
-    lld hash = HashFunc (self->data, sizeof (self->data) * sizeof (self->size));
+    lld hash = HashFunc (self->data, sizeof (self->data) * self->size);
 
     if (self->hash != hash)
     {
         err += 64;
-        printf ("Expected %lld , got %lld \n", self->hash, hash);
+        
     }
+    //printf ("Expected %d , got %d \n", hash, hash);
     return err; 
 }
 
@@ -262,13 +268,14 @@ ull_i HashFunc (void* ptr, size_t size)
     ull_i h = 0xFACFAC;
 
     char* cur_ptr = (char*) ptr;
-    char* end_ptr = cur_ptr + size;
+    char* end_ptr = cur_ptr + size - 1;
 
     for (; cur_ptr != end_ptr; cur_ptr++)
     {
         h = ((h % (1 << 30)) * 2 + *cur_ptr);
     }
-    printf ("Hash result: %lld, size = %u\n", size);
+
+    //printf ("Hash result: %lld, size = %lu\n", h, size);
 
     return h;
 } 
