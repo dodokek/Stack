@@ -11,7 +11,7 @@
 
 #include "config.h"
 
-#define StackDump(X) StackDump_ (X)
+#define StackDump(X) StackDump_ (X, __FILE__, __PRETTY_FUNCTION__, __LINE__)
 #define StackCtor(X, Y) StackCtor_ (X, Y, #X, __FILE__, __PRETTY_FUNCTION__, __LINE__)
 #define HASH_STACK self->hash = HashFunc (self->data, sizeof (self->data) * self->size);
 
@@ -24,7 +24,7 @@ struct StackInfo
     bool  data_corrupted;
 
     void* hash_ignore_ptr;
-    int*  hash_skip;
+    size_t  hash_skip;
 
 };
 

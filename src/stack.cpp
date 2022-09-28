@@ -60,11 +60,10 @@ void StackPush (Stack* self, elem_t value)
 
 void StackCtor_ (Stack* self, size_t capacity, const char* name, const char* filename, const char* funcname, int line)
 {
-    self->data = (elem_t *)calloc(sizeof(elem_t), capacity);
+    self->data = (elem_t *) calloc (sizeof(elem_t), capacity);
 
     self->size = 2;
     self->capacity = capacity;
-    self->name = name + 1; // skips '&' symbol in the name
     self->hash = 0;
 
     self->data[0] = LEFT_COCK;    
@@ -72,9 +71,9 @@ void StackCtor_ (Stack* self, size_t capacity, const char* name, const char* fil
 
     self->stack_info.data_corrupted = false;
     self->stack_info.hash_ignore_ptr = &(self->hash);
-    self->stack_info.hash_skip = 0;
+    self->stack_info.hash_skip = sizeof (ull_i);
     self->stack_info.mother_func = funcname;
-    self->stack_info.name = name;
+    self->stack_info.name = name + 1;       // skips '&' symbol in the name
     self->stack_info.mother_file = filename;
 
     HASH_STACK;
@@ -156,10 +155,15 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
 
     printf ("At file: %s\n", filename);
 
-    printf ("Observing stack[%p] - %s, function: %s (Line %d)):\n", self, self->name, funcname, line);
-    printf ("    Size: %d\n", self->size);
-    printf ("    Hash: %lld \n", self->hash);
-    printf ("    Capacity: %d\n    Data array:\n", self->capacity);
+    printf ("Observing stack[%p] - %s, function: %s (Line %d)):\n", self, self->stack_info.name, funcname, line);
+    printf ("%c Created at %s, file %s**\n", 200, self->stack_info.mother_func, self->stack_info.mother_file);
+
+    printf ("    %cSize: %d\n", 204, self->size);
+    printf ("    %cHash: %lld \n", 204, self->hash);
+    printf ("    %cCapacity: %d\n    %cData array:\n", 204, self->capacity, 200);
+
+
+    if (self->stack_info.data_corrupted) printf ("\n************Stack was corrupted, go fuck yourself.************\n\n");
 
     for (int i = 0; i < self->capacity; i++)
     {
@@ -169,8 +173,7 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
             else
             {
                 printf ("       *[%d]: %d\n", i, self->data[i]);
-            }
-            
+            }         
         }
         else
         {
@@ -193,7 +196,6 @@ lld StackVerificator (Stack *self)
         err += 1;
         return err;
     }
-
     if (self->data == nullptr)
         err += 2;
     if (self->size <= 0)
@@ -210,9 +212,9 @@ lld StackVerificator (Stack *self)
     if (self->hash != hash)
     {
         err += 64;
-        
+        self->stack_info.data_corrupted = true;        
     }
-    //printf ("Expected %d , got %d \n", hash, hash);
+
     return err; 
 }
 
@@ -308,5 +310,10 @@ ull_i HashFunc (void* ptr, size_t size)
 
 void PutDividers()
 {
-    printf ("=========================================================\n");
+    putc ('\n', stdout);
+    for (int i = 0; i < 50; i++)
+    {
+        putc (219, stdout);
+    }
+    putc ('\n', stdout);
 }
