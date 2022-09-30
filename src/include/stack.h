@@ -1,9 +1,9 @@
 #ifndef STACK_H
 #define STACK_H
 
-#define CANARY
-#define HASH
-#define DEBUG 
+#define CANARY 1
+#define HASH 1
+#define DEBUG 1
 
 #include <stdio.h>
 #include <string.h>
@@ -70,7 +70,11 @@ enum ERR_CODES
 
 //----------------------------------------------------
 
-const int CANARY_COUNT = 2;
+#ifdef CANARY
+    const int CANARY_COUNT = 2;
+#else 
+    const int CANARY_COUNT = 0;
+#endif
 
 const int RESIZE_OFFSET = 2;
 

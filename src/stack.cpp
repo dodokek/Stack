@@ -6,16 +6,24 @@ void StackCtor_ (Stack* self, size_t capacity, const char* name, const char* fil
 {
     self->data = (elem_t *) calloc (sizeof(elem_t), capacity);
 
-    self->size = CANARY_COUNT; // CANARY_COUNT
+    self->size = CANARY_COUNT; 
     self->capacity = capacity;
-    self->hash = 0;
-    self->subhash = 0;
+    
+    #ifdef CANARY
 
     self->data[0] = LEFT_COCK;    
     self->data[1] = RIGHT_COCK;  
-    
+
+    #endif
+
+    #ifdef HASH
+
+    self->hash = 0;
+    self->subhash = 0;
     self->stack_info.hash_ignore_ptr = &(self->hash); 
-    self->stack_info.hash_skip = sizeof (int64_t); // ??
+    self->stack_info.hash_skip = sizeof (int64_t); 
+
+    #endif
 
     self->stack_info.data_corrupted = false;
     self->stack_info.mother_func = funcname;
@@ -24,24 +32,41 @@ void StackCtor_ (Stack* self, size_t capacity, const char* name, const char* fil
 
     printf ("\n\nData ptr %p\n\n", self->data);
 
+    #ifdef HASH
     HASH_FUNC;
+    #endif
 }
 
 
 elem_t StackPop (Stack* self)
 {
+    #ifdef DEBUG
+
     Verificate (self);
     StackResize (self, DECREASE);
     StackDump (self);
 
+    #endif
+
+    #ifdef CANARY
+
     elem_t tmp = self->data[self->size - 2];
     
     self->data[self->size - 2] = RIGHT_COCK;
-    self->data[self->size - 1] = POISON_NUM;
+
+    self->data[self->size - 1] = 0;
+
+    #else
+
+    elem_t tmp = self->data[self->size - 1];
+
+    #endif
 
     self->size--;
 
+    #ifdef HASH
     HASH_FUNC;
+    #endif
 
     return tmp;     
 }
@@ -49,15 +74,30 @@ elem_t StackPop (Stack* self)
 
 void StackPush (Stack* self, elem_t value)
 {
+    #ifdef DEBUG
+
     Verificate (self);
     StackResize (self, INCREASE);
     StackDump (self);
 
+    #endif
+
+    #ifdef CANARY
+
     self->data[self->size - 1] = value;
     self->data[self->size]     = RIGHT_COCK;
+    
+    #else
+
+    self->data[self->size - 1] = value;
+    
+    #endif
+
     self->size++;
 
+    #ifdef HASH
     HASH_FUNC;
+    #endif
 }
 
 
@@ -81,15 +121,17 @@ void StackResize (Stack* self, int mode)
     switch (mode)
     {
     case INCREASE:
-        if (self->capacity - self->size < 1)
+        if (self->capacity - self->size <= 1)
         {
             self->data = (elem_t*) recalloc (self->data, self->capacity * MEMORY_MULTIPLIER, sizeof (elem_t));
             self->capacity *= MEMORY_MULTIPLIER;
 
-            for (int i = self->size + 1; i < self->capacity; i++)
+            #ifdef DEBUG
+            for (int i = self->size; i < self->capacity; i++)
             {
                 self->data[i] = POISON_NUM;
             }
+            #endif
         }
 
         break;
@@ -100,10 +142,12 @@ void StackResize (Stack* self, int mode)
             self->data = (elem_t*) recalloc (self->data, self->capacity / 2, sizeof (elem_t));
             self->capacity /= MEMORY_MULTIPLIER;
 
-            for (int i = self->size + 1; i < self->capacity; i++)
+            #ifdef DEBUG
+            for (int i = self->size; i < self->capacity; i++)
             {
                 self->data[i] = POISON_NUM;
             }
+            #endif
         }
 
         break;
@@ -113,8 +157,9 @@ void StackResize (Stack* self, int mode)
         break;
     }
 
+    #ifdef HASH
     HASH_FUNC;
-        
+    #endif
 }
 
 
@@ -124,6 +169,7 @@ void StackDtor (Stack* self)
     self->size = -1;
     self->capacity = -1;
     self->hash = 0;
+    self->subhash = 0;
 
     StackInfo tmp = {}; // memset()
     self->stack_info = tmp;

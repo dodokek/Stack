@@ -6,7 +6,7 @@ int main ()
     Stack stk1 = {};
     StackCtor(&stk1, 5);
     
-    StackDump (&stk1);
+    //StackDump (&stk1);
     
     for (int i = 0 ; i < 6; i++)
     {
@@ -19,7 +19,7 @@ int main ()
     }
     //stk1.data[1] = 2;
 
-    StackDump (&stk1);
+    //StackDump (&stk1);
     
     StackDtor(&stk1);
 }
