@@ -16,8 +16,16 @@ int main ()
 
     //fprintf (stderr, "%d\n", stk1.stack_info.mother_file);
 
+    StackDump (&stk1);
+
     //Poluchilos
-    //stk1.stack_info.mother_file = "You down";
+    //printf ("\n\nWe have %p and %p \n\n\n\n", "You down", stk1.stack_info.mother_file);
+    //stk1.stack_info.mother_file = "Bebra amongus";
+    //stk1.capacity = 10;
+        
+    
+
+    StackDump (&stk1);
 
     //fprintf (stderr, "%d\n", stk1.stack_info.mother_file);
 
@@ -34,6 +42,7 @@ int main ()
     {
         StackPop (&stk1);
     }
+    
     //stk1.data[1] = 2;
 
     //StackDump (&stk1);

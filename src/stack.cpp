@@ -158,6 +158,9 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
 
     printf ("%cSize: %d\n", 204, self->size);
     printf ("%cHash: %I64d \n", 204, self->hash);
+    printf ("%cSubhash: %I64d \n", 204, self->subhash);
+    printf ("%cLeft canary: %x\n", 204, self->left_cock);
+    printf ("%cRight canary: %x\n", 204, self->right_cock);
     printf ("%cCapacity: %d\n%cData array:\n", 204, self->capacity, 200);
 
     if (self->stack_info.data_corrupted) 
@@ -212,11 +215,11 @@ intmax_t StackVerificator (Stack *self)
 
     #ifdef HASH
 
-    Stack* tmp = self;
-    tmp->hash = 0;
-    tmp->subhash = 0;
+    Stack tmp = *self;
+    tmp.hash = 0;
+    tmp.subhash = 0;
 
-    intmax_t hash = HashFunc (tmp, sizeof (Stack));
+    intmax_t hash = HashFunc (&tmp, sizeof (Stack));
     intmax_t subhash = HashFunc (self->data, sizeof (elem_t) * self->capacity);
 
     //printf ("\n\nDATA HASH IS: %intmax_t\n\n\n", HashFunc (self->data, sizeof (elem_t) * self->capacity, nullptr, 0));
@@ -225,7 +228,7 @@ intmax_t StackVerificator (Stack *self)
 
     if (self->hash != hash || self->subhash != subhash)
     {
-        err +=STACK_MEMORY_CORRUPTION;
+        err += STACK_MEMORY_CORRUPTION;
         self->stack_info.data_corrupted = true;        
     }
 
@@ -310,6 +313,7 @@ void PrintError (int error_code)
 
 intmax_t HashFunc (void* ptr, size_t size)
 {
+    //printf ("\n\nRecieved ptr %p\n\n", ptr);
     assert (ptr != nullptr);
 
     intmax_t h = 0xFACFAC;
@@ -319,10 +323,7 @@ intmax_t HashFunc (void* ptr, size_t size)
 
     for (; cur_ptr < end_ptr; cur_ptr++)
     {
-        //if (tmp->data == (elem_t*) cur_ptr) printf ("\n\nEntering data zone:\n\n\n");
-        //printf ("Now at ptr: %p ", cur_ptr);
-
-        h = ((h % (1 << 30)) * 2 + *cur_ptr);
+        h = ((h + (*cur_ptr)) * SALT) % (HASH_MOD);
     }
 
     //printf ("Hash result: %intmax_t, size = %lu\n", h, size);

@@ -47,8 +47,8 @@ struct Stack
 #define StackDump(X ) StackDump_ (X, __FILE__, __PRETTY_FUNCTION__,  __LINE__) 
 #define StackCtor(X, Y) StackCtor_ (X, Y, #X, __FILE__, __PRETTY_FUNCTION__, __LINE__)
   
-#define DO_REHASH self->hash = self->subhash = 0;               \
-                  self->hash = HashFunc (self, sizeof (Stack)); \
+#define DO_REHASH self->hash = self->subhash = 0;                                           \
+                  self->hash = HashFunc (self, sizeof (Stack));                             \
                   self->subhash =  HashFunc (self->data, sizeof (elem_t) * self->capacity);
 
 
