@@ -21,9 +21,6 @@ struct StackInfo
     const char* mother_func;
     const char* mother_file;
     bool  data_corrupted;
-
-    void* hash_ignore_ptr;
-    size_t  hash_skip; // ??
 };
 
 
@@ -34,20 +31,17 @@ struct Stack
     int size;
     int capacity;
     elem_t* data; 
-    int64_t hash;
-    int64_t subhash;   
+    intmax_t hash;
+    intmax_t subhash;   
 };
 
 
-#define StackDump(X) StackDump_ (X, __FILE__, __PRETTY_FUNCTION__, __LINE__)
+#define StackDump(X ) StackDump_ (X, __FILE__, __PRETTY_FUNCTION__,  __LINE__) 
 #define StackCtor(X, Y) StackCtor_ (X, Y, #X, __FILE__, __PRETTY_FUNCTION__, __LINE__)
-#define HASH_FUNC self->hash = HashFunc (self, sizeof (Stack), self->stack_info.hash_ignore_ptr, sizeof (int64_t) * 2); \
-                  self->subhash =  HashFunc (self->data, sizeof (elem_t) * self->capacity, nullptr, 0);
-
-#define min(a,b) \
-   ({ __typeof__  (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
-                      _a < _b ? _a : _b; })
+  
+#define DO_REHASH self->hash = self->subhash = 0;               \
+                  self->hash = HashFunc (self, sizeof (Stack)); \
+                  self->subhash =  HashFunc (self->data, sizeof (elem_t) * self->capacity);
 
 
 enum RESIZE_MODE
@@ -66,6 +60,7 @@ enum ERR_CODES
     INVALID_CAPACITY = 16,
     DATA_ACCESS_VIOLATION = 32,
     STACK_MEMORY_CORRUPTION = 64
+    // Don't forget to change ERROS_COUNT const
 };
 
 //----------------------------------------------------
@@ -80,6 +75,8 @@ const int RESIZE_OFFSET = 2;
 
 const int MEMORY_MULTIPLIER = 2;
 
+const int ERRORS_COUNT = 7;
+
 //----------------------------------------------------
 
 
@@ -88,11 +85,11 @@ void StackCtor_ (Stack* self, size_t capacity, const char* name, const char* fil
 
 void StackDtor (Stack* self);
 
-lld StackVerificator (Stack* self);
+intmax_t StackVerificator (Stack* self);
 
-int GetBit (lld n, int pos);
+int GetBit (intmax_t n, int pos);
 
-void PutErrCodes (lld err);
+void PutErrCodes (intmax_t err);
 
 void PrintError (int error_code);
 
@@ -110,7 +107,10 @@ void StackResize (Stack* self, int mode);
 
 void* recalloc (void* ptr, int len_new, size_t size);
 
-int64_t HashFunc (void* ptr, size_t size, void* skip_ptr, size_t skip_amount);
+intmax_t HashFunc (void* ptr, size_t size);
 
+elem_t min (elem_t elem1, elem_t elem2);
+
+void fill_array (elem_t* cur_ptr, elem_t* end_ptr, elem_t filler);
 
 #endif

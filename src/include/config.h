@@ -1,4 +1,4 @@
-typedef unsigned int lld;
+
 typedef int elem_t;
 typedef long long int ll_i; // ??
 

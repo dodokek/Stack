@@ -19,9 +19,7 @@ void StackCtor_ (Stack* self, size_t capacity, const char* name, const char* fil
     #ifdef HASH
 
     self->hash = 0;
-    self->subhash = 0;
-    self->stack_info.hash_ignore_ptr = &(self->hash); 
-    self->stack_info.hash_skip = sizeof (int64_t); 
+    self->subhash = 0; 
 
     #endif
 
@@ -33,7 +31,7 @@ void StackCtor_ (Stack* self, size_t capacity, const char* name, const char* fil
     printf ("\n\nData ptr %p\n\n", self->data);
 
     #ifdef HASH
-    HASH_FUNC;
+    DO_REHASH;
     #endif
 }
 
@@ -65,7 +63,7 @@ elem_t StackPop (Stack* self)
     self->size--;
 
     #ifdef HASH
-    HASH_FUNC;
+    DO_REHASH;
     #endif
 
     return tmp;     
@@ -96,23 +94,25 @@ void StackPush (Stack* self, elem_t value)
     self->size++;
 
     #ifdef HASH
-    HASH_FUNC;
+    DO_REHASH;
     #endif
 }
 
 
 void* recalloc (void* ptr, int len_new, size_t size)
 {
-    void* new_ptr = nullptr;
-
     int len_old = _msize (ptr);
 
-    new_ptr = (void*) calloc (len_new, size);
+    ptr = (void*) realloc (ptr, len_new * size);
 
-    memcpy (new_ptr, ptr, min(len_old, len_new) * size);
-    free (ptr);
+    /*for (int i = len_old; i < len_new * size; i++)
+    {
+        new_ptr[i] = 0;
+    }*/
+
+    fill_array ((elem_t*) (ptr + len_old), (elem_t*) (ptr + len_new * size), 0);
     
-    return new_ptr;
+    return ptr;
 }
 
 
@@ -127,10 +127,7 @@ void StackResize (Stack* self, int mode)
             self->capacity *= MEMORY_MULTIPLIER;
 
             #ifdef DEBUG
-            for (int i = self->size; i < self->capacity; i++)
-            {
-                self->data[i] = POISON_NUM;
-            }
+            fill_array (self->data + self->size, self->data + self->capacity, POISON_NUM);
             #endif
         }
 
@@ -143,10 +140,7 @@ void StackResize (Stack* self, int mode)
             self->capacity /= MEMORY_MULTIPLIER;
 
             #ifdef DEBUG
-            for (int i = self->size; i < self->capacity; i++)
-            {
-                self->data[i] = POISON_NUM;
-            }
+            fill_array (self->data + self->size, self->data + self->capacity, POISON_NUM);
             #endif
         }
 
@@ -158,7 +152,7 @@ void StackResize (Stack* self, int mode)
     }
 
     #ifdef HASH
-    HASH_FUNC;
+    DO_REHASH;
     #endif
 }
 
@@ -166,6 +160,7 @@ void StackResize (Stack* self, int mode)
 void StackDtor (Stack* self)
 {
     free (self->data);
+    self->data = nullptr; 
     self->size = -1;
     self->capacity = -1;
     self->hash = 0;
@@ -175,8 +170,6 @@ void StackDtor (Stack* self)
     self->stack_info = tmp;
 }
 
-
-//#define 200 // $$
 
 void StackDump_ (Stack* self, const char* filename, const char* funcname, int line)
 {
@@ -191,9 +184,7 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
     printf ("%c Created at %s, file %s\n", 200, self->stack_info.mother_func, self->stack_info.mother_file);
 
     printf ("%cSize: %d\n", 204, self->size);
-    printf ("%cHash: %lld \n", 204, self->hash);
-    printf ("%cHash-ignore ptr: %p \n", 204, self->stack_info.hash_ignore_ptr);
-    printf ("%cSkip amount: %u \n", 204, self->stack_info.hash_skip);
+    printf ("%cHash: %I64d \n", 204, self->hash);
     printf ("%cCapacity: %d\n%cData array:\n", 204, self->capacity, 200);
 
     if (self->stack_info.data_corrupted) 
@@ -216,9 +207,9 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
 }
 
 
-lld StackVerificator (Stack *self)
+intmax_t StackVerificator (Stack *self)
 {
-    lld err = 0;
+    intmax_t err = 0;
     
     printf ("---------------------Verifying stack: %p---------------------\n", self);
 
@@ -241,12 +232,16 @@ lld StackVerificator (Stack *self)
         self->stack_info.data_corrupted = true;
     }
 
-    lld hash = HashFunc (self, sizeof (Stack), self->stack_info.hash_ignore_ptr, sizeof(int64_t) * 2);
-    lld subhash = HashFunc (self->data, sizeof (elem_t) * self->capacity, nullptr, 0);
+    Stack* tmp = self;
+    tmp->hash = 0;
+    tmp->subhash = 0;
 
-    //printf ("\n\nDATA HASH IS: %lld\n\n\n", HashFunc (self->data, sizeof (elem_t) * self->capacity, nullptr, 0));
-    printf ("We have hash: %u and %u, ok?\n", hash, self->hash);
-    printf ("We have subhash: %u and %u, ok?\n", subhash, self->subhash);
+    intmax_t hash = HashFunc (tmp, sizeof (Stack));
+    intmax_t subhash = HashFunc (self->data, sizeof (elem_t) * self->capacity);
+
+    //printf ("\n\nDATA HASH IS: %intmax_t\n\n\n", HashFunc (self->data, sizeof (elem_t) * self->capacity, nullptr, 0));
+    printf ("We have hash: %I64d and %I64d, ok?\n", hash, self->hash);
+    printf ("We have subhash: %I64d and %I64d, ok?\n", subhash, self->subhash);
 
     if (self->hash != hash || self->subhash != subhash)
     {
@@ -260,31 +255,30 @@ lld StackVerificator (Stack *self)
 
 void Verificate (Stack* self)
 {
-    lld err = StackVerificator (self);
+    intmax_t err = StackVerificator (self);
 
-    printf ("Error code = %d\n", err);
+    printf ("Error code = %I64d\n", err);
     PutErrCodes (err);
 
     if (err == 0) printf ("ok\n");
 }
 
 
-void PutErrCodes (lld err)
+void PutErrCodes (intmax_t err)
 {
-    // NUM_OF_ERRORS??
-    for (int i = 0; i <= 10; i++)
+    for (int i = 0; i <= ERRORS_COUNT; i++)
     {
         int cur_bit = GetBit(err, i);
 
         if (cur_bit)
         {
-            PrintError(1 << i);
+            PrintError (1 << i);
         }
     }
 }
 
 
-int GetBit (lld n, int pos)
+int GetBit (intmax_t n, int pos)
 {
     int mask = 1 << pos;
     int masked_n = n & mask;
@@ -332,15 +326,11 @@ void PrintError (int error_code)
 }
 
 
-int64_t HashFunc (void* ptr, size_t size, void* skip_ptr, size_t skip_amount)
+intmax_t HashFunc (void* ptr, size_t size)
 {
     assert (ptr != nullptr);
 
-    printf ("Got ptr %p\n", ptr);
-
-    Stack* tmp = (Stack*) ptr;
-
-    int64_t h = 0xFACFAC;
+    intmax_t h = 0xFACFAC;
 
     char* cur_ptr = (char*) ptr;
     char* end_ptr = cur_ptr + size - 1;
@@ -349,22 +339,30 @@ int64_t HashFunc (void* ptr, size_t size, void* skip_ptr, size_t skip_amount)
     {
         //if (tmp->data == (elem_t*) cur_ptr) printf ("\n\nEntering data zone:\n\n\n");
         //printf ("Now at ptr: %p ", cur_ptr);
-        //printf ("Cycle\n");
-        if (cur_ptr == (char*) skip_ptr)
-        {
-            printf ("Time to skip ptr: %p\n", cur_ptr);
-
-            cur_ptr += skip_amount - 1;
-            continue;
-        }
 
         h = ((h % (1 << 30)) * 2 + *cur_ptr);
     }
 
-    //printf ("Hash result: %lld, size = %lu\n", h, size);
+    //printf ("Hash result: %intmax_t, size = %lu\n", h, size);
 
     return h;
 } 
+
+
+elem_t min (elem_t elem1, elem_t elem2)
+{
+    return (elem1 < elem2) ? elem1 : elem2;
+}
+
+
+void fill_array (elem_t* cur_ptr, elem_t* end_ptr, elem_t filler)
+{
+    while (cur_ptr < end_ptr)
+    {
+        *cur_ptr = filler;
+        cur_ptr++;
+    }
+}
 
 
 void PutDividers()
