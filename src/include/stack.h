@@ -1,6 +1,9 @@
 #ifndef STACK_H
 #define STACK_H
 
+#define CANARY
+#define HASH
+#define DEBUG 
 
 #include <stdio.h>
 #include <string.h>
@@ -9,8 +12,6 @@
 #include <malloc.h>
 #include <assert.h>
 #include <stdint.h>
-
-// int64_t %lld
 
 #include "config.h"
 
@@ -33,19 +34,16 @@ struct Stack
     int size;
     int capacity;
     elem_t* data; 
-    ull_i hash;
-    ull_i subhash;   
+    int64_t hash;
+    int64_t subhash;   
 };
 
 
 #define StackDump(X) StackDump_ (X, __FILE__, __PRETTY_FUNCTION__, __LINE__)
 #define StackCtor(X, Y) StackCtor_ (X, Y, #X, __FILE__, __PRETTY_FUNCTION__, __LINE__)
-#define HASH_FUNC self->hash = HashFunc (self, sizeof (Stack), self->stack_info.hash_ignore_ptr, sizeof (ull_i) * 2); \
+#define HASH_FUNC self->hash = HashFunc (self, sizeof (Stack), self->stack_info.hash_ignore_ptr, sizeof (int64_t) * 2); \
                   self->subhash =  HashFunc (self->data, sizeof (elem_t) * self->capacity, nullptr, 0);
 
-// #define HASH_FUNC
-// self->hash = HASH_FUNC;
-                                /*HashFunc (self->data, sizeof (elem_t), nullptr, 0);*/
 #define min(a,b) \
    ({ __typeof__  (a) _a = (a); \
        __typeof__ (b) _b = (b); \
@@ -73,6 +71,10 @@ enum ERR_CODES
 //----------------------------------------------------
 
 const int CANARY_COUNT = 2;
+
+const int RESIZE_OFFSET = 2;
+
+const int MEMORY_MULTIPLIER = 2;
 
 //----------------------------------------------------
 
@@ -102,9 +104,9 @@ void StackPush (Stack* self, elem_t value);
 
 void StackResize (Stack* self, int mode);
 
-void* recalloc (void* ptr, int len_old, int len_new, size_t size);
+void* recalloc (void* ptr, int len_new, size_t size);
 
-ull_i HashFunc (void* ptr, size_t size, void* skip_ptr, size_t skip_amount);
+int64_t HashFunc (void* ptr, size_t size, void* skip_ptr, size_t skip_amount);
 
 
 #endif

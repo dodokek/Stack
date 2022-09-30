@@ -1,6 +1,6 @@
 typedef unsigned int lld;
 typedef int elem_t;
-typedef long long int ull_i; // ??
+typedef long long int ll_i; // ??
 
 const int RIGHT_COCK = 0xDEADBABE;
 const int LEFT_COCK  = 0xCAFEBABE;

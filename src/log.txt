@@ -1,26 +1,26 @@
 
 
-Data ptr 006F21F8
+Data ptr 00B721F8
 
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F21F8
----------------------Verifying stack: 0064FEC0---------------------
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F21F8
-We have hash: 541145632 and 541145632, ok?
+Got ptr 0064FEC8
+Time to skip ptr: 0064FEF0
+Got ptr 00B721F8
+---------------------Verifying stack: 0064FEC8---------------------
+Got ptr 0064FEC8
+Time to skip ptr: 0064FEF0
+Got ptr 00B721F8
+We have hash: 608248608 and 608248608, ok?
 We have subhash: 2073001984 and 2073001984, ok?
 Error code = 0
 ok
 
 лллллллллллллллллллллллллллллллллллллллллллллллллл
 At file: main.cpp
-Observing stack[0064FEC0] - stk1, function: int main() (Line 9)):
+Observing stack[0064FEC8] - stk1, function: int main() (Line 9)):
 Ш Created at int main(), file main.cpp
     ЬSize: 2
-    ЬHash: 541145632 
-    ЬHash-ignore ptr: 0064FEE8 
+    ЬHash: 608248608 
+    ЬHash-ignore ptr: 0064FEF0 
     ЬSkip amount: 8 
     ЬCapacity: 5
     ШData array:
@@ -31,33 +31,22 @@ Observing stack[0064FEC0] - stk1, function: int main() (Line 9)):
         [4]: 0
 
 лллллллллллллллллллллллллллллллллллллллллллллллллл
----------------------Verifying stack: 0064FEC0---------------------
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F21F8
-We have hash: 541145632 and 541145632, ok?
-We have subhash: 2073001984 and 2073001984, ok?
-Error code = 0
-ok
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F21F8
----------------------Verifying stack: 0064FEC0---------------------
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F21F8
-We have hash: 541145632 and 541145632, ok?
+---------------------Verifying stack: 0064FEC8---------------------
+Got ptr 0064FEC8
+Time to skip ptr: 0064FEF0
+Got ptr 00B721F8
+We have hash: 608248608 and 608248608, ok?
 We have subhash: 2073001984 and 2073001984, ok?
 Error code = 0
 ok
 
 лллллллллллллллллллллллллллллллллллллллллллллллллл
-At file: stack.cpp
-Observing stack[0064FEC0] - stk1, function: void StackPush(Stack*, elem_t) (Line 55)):
-Ш Created at int main(), file main.cpp
+At file: main.cpp
+Observing stack[0064FEC8] - stk1, function: int main() (Line 14)):
+Ш Created at int main(), file bebra
     ЬSize: 2
-    ЬHash: 541145632 
-    ЬHash-ignore ptr: 0064FEE8 
+    ЬHash: 608248608 
+    ЬHash-ignore ptr: 0064FEF0 
     ЬSkip amount: 8 
     ЬCapacity: 5
     ШData array:
@@ -68,401 +57,3 @@ Observing stack[0064FEC0] - stk1, function: void StackPush(Stack*, elem_t) (Line
         [4]: 0
 
 лллллллллллллллллллллллллллллллллллллллллллллллллл
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F21F8
----------------------Verifying stack: 0064FEC0---------------------
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F21F8
-We have hash: 541178400 and 541178400, ok?
-We have subhash: 2074937344 and 2074937344, ok?
-Error code = 0
-ok
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F21F8
----------------------Verifying stack: 0064FEC0---------------------
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F21F8
-We have hash: 541178400 and 541178400, ok?
-We have subhash: 2074937344 and 2074937344, ok?
-Error code = 0
-ok
-
-лллллллллллллллллллллллллллллллллллллллллллллллллл
-At file: stack.cpp
-Observing stack[0064FEC0] - stk1, function: void StackPush(Stack*, elem_t) (Line 55)):
-Ш Created at int main(), file main.cpp
-    ЬSize: 3
-    ЬHash: 541178400 
-    ЬHash-ignore ptr: 0064FEE8 
-    ЬSkip amount: 8 
-    ЬCapacity: 5
-    ШData array:
-       *[0]: cafebabe
-       *[1]: 0
-       *[2]: deadbabe
-        [3]: 0
-        [4]: 0
-
-лллллллллллллллллллллллллллллллллллллллллллллллллл
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F21F8
----------------------Verifying stack: 0064FEC0---------------------
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F21F8
-We have hash: 541211168 and 541211168, ok?
-We have subhash: 2075059328 and 2075059328, ok?
-Error code = 0
-ok
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F3220
----------------------Verifying stack: 0064FEC0---------------------
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F3220
-We have hash: 541227616 and 541227616, ok?
-We have subhash: 1206002212 and 1206002212, ok?
-Error code = 0
-ok
-
-лллллллллллллллллллллллллллллллллллллллллллллллллл
-At file: stack.cpp
-Observing stack[0064FEC0] - stk1, function: void StackPush(Stack*, elem_t) (Line 55)):
-Ш Created at int main(), file main.cpp
-    ЬSize: 4
-    ЬHash: 541227616 
-    ЬHash-ignore ptr: 0064FEE8 
-    ЬSkip amount: 8 
-    ЬCapacity: 10
-    ШData array:
-       *[0]: cafebabe
-       *[1]: 0
-       *[2]: 1
-       *[3]: deadbabe
-        [4]: 0
-        [5]: f001
-        [6]: f001
-        [7]: f001
-        [8]: f001
-        [9]: f001
-
-лллллллллллллллллллллллллллллллллллллллллллллллллл
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F3220
----------------------Verifying stack: 0064FEC0---------------------
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F3220
-We have hash: 541260384 and 541260384, ok?
-We have subhash: 677519908 and 677519908, ok?
-Error code = 0
-ok
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F3220
----------------------Verifying stack: 0064FEC0---------------------
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F3220
-We have hash: 541260384 and 541260384, ok?
-We have subhash: 677519908 and 677519908, ok?
-Error code = 0
-ok
-
-лллллллллллллллллллллллллллллллллллллллллллллллллл
-At file: stack.cpp
-Observing stack[0064FEC0] - stk1, function: void StackPush(Stack*, elem_t) (Line 55)):
-Ш Created at int main(), file main.cpp
-    ЬSize: 5
-    ЬHash: 541260384 
-    ЬHash-ignore ptr: 0064FEE8 
-    ЬSkip amount: 8 
-    ЬCapacity: 10
-    ШData array:
-       *[0]: cafebabe
-       *[1]: 0
-       *[2]: 1
-       *[3]: 2
-       *[4]: deadbabe
-        [5]: f001
-        [6]: f001
-        [7]: f001
-        [8]: f001
-        [9]: f001
-
-лллллллллллллллллллллллллллллллллллллллллллллллллл
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F3220
----------------------Verifying stack: 0064FEC0---------------------
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F3220
-We have hash: 541293152 and 541293152, ok?
-We have subhash: 1187389988 and 1187389988, ok?
-Error code = 0
-ok
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F3220
----------------------Verifying stack: 0064FEC0---------------------
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F3220
-We have hash: 541293152 and 541293152, ok?
-We have subhash: 1187389988 and 1187389988, ok?
-Error code = 0
-ok
-
-лллллллллллллллллллллллллллллллллллллллллллллллллл
-At file: stack.cpp
-Observing stack[0064FEC0] - stk1, function: void StackPush(Stack*, elem_t) (Line 55)):
-Ш Created at int main(), file main.cpp
-    ЬSize: 6
-    ЬHash: 541293152 
-    ЬHash-ignore ptr: 0064FEE8 
-    ЬSkip amount: 8 
-    ЬCapacity: 10
-    ШData array:
-       *[0]: cafebabe
-       *[1]: 0
-       *[2]: 1
-       *[3]: 2
-       *[4]: 3
-       *[5]: deadbabe
-        [6]: f001
-        [7]: f001
-        [8]: f001
-        [9]: f001
-
-лллллллллллллллллллллллллллллллллллллллллллллллллл
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F3220
----------------------Verifying stack: 0064FEC0---------------------
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F3220
-We have hash: 541325920 and 541325920, ok?
-We have subhash: 1722835492 and 1219519012, ok?
-Error code = 64
-MEMORY GIVEN FOR CURRENT STACK WAS CORRUPTED, further actions are unsafe.
-
-лллллллллллллллллллллллллллллллллллллллллллллллллл
-At file: main.cpp
-Observing stack[0064FEC0] - stk1, function: int main() (Line 17)):
-Ш Created at int main(), file main.cpp
-    ЬSize: 7
-    ЬHash: 541325920 
-    ЬHash-ignore ptr: 0064FEE8 
-    ЬSkip amount: 8 
-    ЬCapacity: 10
-    ШData array:
-
-************Stack was corrupted, stop cringe.************
-
-       *[0]: cafebabe
-       *[1]: 0
-       *[2]: 1
-       *[3]: 1000
-       *[4]: 3
-       *[5]: 4
-       *[6]: deadbabe
-        [7]: f001
-        [8]: f001
-        [9]: f001
-
-лллллллллллллллллллллллллллллллллллллллллллллллллл
----------------------Verifying stack: 0064FEC0---------------------
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F3220
-We have hash: 675543648 and 541325920, ok?
-We have subhash: 1722835492 and 1219519012, ok?
-Error code = 64
-MEMORY GIVEN FOR CURRENT STACK WAS CORRUPTED, further actions are unsafe.
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F3220
----------------------Verifying stack: 0064FEC0---------------------
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F3220
-We have hash: 675543648 and 675543648, ok?
-We have subhash: 1722835492 and 1722835492, ok?
-Error code = 0
-ok
-
-лллллллллллллллллллллллллллллллллллллллллллллллллл
-At file: stack.cpp
-Observing stack[0064FEC0] - stk1, function: elem_t StackPop(Stack*) (Line 36)):
-Ш Created at int main(), file main.cpp
-    ЬSize: 7
-    ЬHash: 675543648 
-    ЬHash-ignore ptr: 0064FEE8 
-    ЬSkip amount: 8 
-    ЬCapacity: 10
-    ШData array:
-
-************Stack was corrupted, stop cringe.************
-
-       *[0]: cafebabe
-       *[1]: 0
-       *[2]: 1
-       *[3]: 1000
-       *[4]: 3
-       *[5]: 4
-       *[6]: deadbabe
-        [7]: f001
-        [8]: f001
-        [9]: f001
-
-лллллллллллллллллллллллллллллллллллллллллллллллллл
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F3220
-Popped elem: 4
----------------------Verifying stack: 0064FEC0---------------------
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F3220
-We have hash: 675510880 and 675510880, ok?
-We have subhash: 1690706468 and 1690706468, ok?
-Error code = 0
-ok
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F3220
----------------------Verifying stack: 0064FEC0---------------------
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F3220
-We have hash: 675510880 and 675510880, ok?
-We have subhash: 1690706468 and 1690706468, ok?
-Error code = 0
-ok
-
-лллллллллллллллллллллллллллллллллллллллллллллллллл
-At file: stack.cpp
-Observing stack[0064FEC0] - stk1, function: elem_t StackPop(Stack*) (Line 36)):
-Ш Created at int main(), file main.cpp
-    ЬSize: 6
-    ЬHash: 675510880 
-    ЬHash-ignore ptr: 0064FEE8 
-    ЬSkip amount: 8 
-    ЬCapacity: 10
-    ШData array:
-
-************Stack was corrupted, stop cringe.************
-
-       *[0]: cafebabe
-       *[1]: 0
-       *[2]: 1
-       *[3]: 1000
-       *[4]: 3
-       *[5]: deadbabe
-        [6]: f001
-        [7]: f001
-        [8]: f001
-        [9]: f001
-
-лллллллллллллллллллллллллллллллллллллллллллллллллл
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F3220
-Popped elem: 3
----------------------Verifying stack: 0064FEC0---------------------
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F3220
-We have hash: 675478112 and 675478112, ok?
-We have subhash: 1180836388 and 1180836388, ok?
-Error code = 0
-ok
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F21F8
----------------------Verifying stack: 0064FEC0---------------------
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F21F8
-We have hash: 675461664 and 675461664, ok?
-We have subhash: 2075065465 and 2075065465, ok?
-Error code = 0
-ok
-
-лллллллллллллллллллллллллллллллллллллллллллллллллл
-At file: stack.cpp
-Observing stack[0064FEC0] - stk1, function: elem_t StackPop(Stack*) (Line 36)):
-Ш Created at int main(), file main.cpp
-    ЬSize: 5
-    ЬHash: 675461664 
-    ЬHash-ignore ptr: 0064FEE8 
-    ЬSkip amount: 8 
-    ЬCapacity: 5
-    ШData array:
-
-************Stack was corrupted, stop cringe.************
-
-       *[0]: cafebabe
-       *[1]: 0
-       *[2]: 1
-       *[3]: 1000
-       *[4]: deadbabe
-
-лллллллллллллллллллллллллллллллллллллллллллллллллл
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F21F8
-Popped elem: 1000
----------------------Verifying stack: 0064FEC0---------------------
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F21F8
-We have hash: 675428896 and 675428896, ok?
-We have subhash: 2075059300 and 2075059300, ok?
-Error code = 0
-ok
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F21F8
----------------------Verifying stack: 0064FEC0---------------------
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F21F8
-We have hash: 675428896 and 675428896, ok?
-We have subhash: 2075059300 and 2075059300, ok?
-Error code = 0
-ok
-
-лллллллллллллллллллллллллллллллллллллллллллллллллл
-At file: stack.cpp
-Observing stack[0064FEC0] - stk1, function: elem_t StackPop(Stack*) (Line 36)):
-Ш Created at int main(), file main.cpp
-    ЬSize: 4
-    ЬHash: 675428896 
-    ЬHash-ignore ptr: 0064FEE8 
-    ЬSkip amount: 8 
-    ЬCapacity: 5
-    ШData array:
-
-************Stack was corrupted, stop cringe.************
-
-       *[0]: cafebabe
-       *[1]: 0
-       *[2]: 1
-       *[3]: deadbabe
-        [4]: f001
-
-лллллллллллллллллллллллллллллллллллллллллллллллллл
-Got ptr 0064FEC0
-Time to skip ptr: 0064FEE8
-Got ptr 006F21F8
-Popped elem: 1

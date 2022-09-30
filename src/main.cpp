@@ -8,18 +8,18 @@ int main ()
     
     StackDump (&stk1);
     
-    for (int i = 0; i < 5; i++)
+    for (int i = 0 ; i < 6; i++)
     {
-        StackPush (&stk1, i);    
+        StackPush (&stk1, i);
     }
 
-    stk1.data[3] = 1000;
+    for (int i = 0 ; i < 6; i++)
+    {
+        StackPop (&stk1);
+    }
+    //stk1.data[1] = 2;
+
     StackDump (&stk1);
-
-    for (int i = 0; i < 4; i++)
-    {
-        printf("Popped elem: %d\n", StackPop (&stk1));    
-    }
     
     StackDtor(&stk1);
 }

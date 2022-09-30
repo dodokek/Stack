@@ -13,10 +13,9 @@ void StackCtor_ (Stack* self, size_t capacity, const char* name, const char* fil
 
     self->data[0] = LEFT_COCK;    
     self->data[1] = RIGHT_COCK;  
-
     
     self->stack_info.hash_ignore_ptr = &(self->hash); 
-    self->stack_info.hash_skip = sizeof (ull_i); // ??
+    self->stack_info.hash_skip = sizeof (int64_t); // ??
 
     self->stack_info.data_corrupted = false;
     self->stack_info.mother_func = funcname;
@@ -62,11 +61,11 @@ void StackPush (Stack* self, elem_t value)
 }
 
 
-
-
-void* recalloc (void* ptr, int len_old, int len_new, size_t size)
+void* recalloc (void* ptr, int len_new, size_t size)
 {
     void* new_ptr = nullptr;
+
+    int len_old = _msize (ptr);
 
     new_ptr = (void*) calloc (len_new, size);
 
@@ -82,14 +81,11 @@ void StackResize (Stack* self, int mode)
     switch (mode)
     {
     case INCREASE:
-
-        // if needed??
-        if (self->capacity - self->size < 2)
+        if (self->capacity - self->size < 1)
         {
-            self->data = (elem_t*) recalloc (self->data, self->capacity, self->capacity * 2, sizeof (elem_t));
-            self->capacity *= 2;
+            self->data = (elem_t*) recalloc (self->data, self->capacity * MEMORY_MULTIPLIER, sizeof (elem_t));
+            self->capacity *= MEMORY_MULTIPLIER;
 
-            // ??
             for (int i = self->size + 1; i < self->capacity; i++)
             {
                 self->data[i] = POISON_NUM;
@@ -99,11 +95,10 @@ void StackResize (Stack* self, int mode)
         break;
     
     case DECREASE:
-        // self->capacity / 8 == OFFSET_ON_DEL
-        if (self->capacity - self->size > 4)
+        if ((self->capacity / MEMORY_MULTIPLIER) - self->size > RESIZE_OFFSET)
         {
-            self->data = (elem_t*) recalloc (self->data, self->capacity, self->capacity / 2, sizeof (elem_t));
-            self->capacity /= 2;
+            self->data = (elem_t*) recalloc (self->data, self->capacity / 2, sizeof (elem_t));
+            self->capacity /= MEMORY_MULTIPLIER;
 
             for (int i = self->size + 1; i < self->capacity; i++)
             {
@@ -149,11 +144,11 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
     printf ("Observing stack[%p] - %s, function: %s (Line %d)):\n", self, self->stack_info.name, funcname, line);
     printf ("%c Created at %s, file %s\n", 200, self->stack_info.mother_func, self->stack_info.mother_file);
 
-    printf ("    %cSize: %d\n", 204, self->size);
-    printf ("    %cHash: %lld \n", 204, self->hash);
-    printf ("    %cHash-ignore ptr: %p \n", 204, self->stack_info.hash_ignore_ptr);
-    printf ("    %cSkip amount: %u \n", 204, self->stack_info.hash_skip);
-    printf ("    %cCapacity: %d\n    %cData array:\n", 204, self->capacity, 200);
+    printf ("%cSize: %d\n", 204, self->size);
+    printf ("%cHash: %lld \n", 204, self->hash);
+    printf ("%cHash-ignore ptr: %p \n", 204, self->stack_info.hash_ignore_ptr);
+    printf ("%cSkip amount: %u \n", 204, self->stack_info.hash_skip);
+    printf ("%cCapacity: %d\n%cData array:\n", 204, self->capacity, 200);
 
     if (self->stack_info.data_corrupted) 
         printf ("\n************Stack was corrupted, stop cringe.************\n\n");
@@ -162,16 +157,12 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
     {
         if (i < self->size) 
         {
-            // printf("\t\t") 
-
-            // printf used elements
-            if (i == 0 || i == self->size - 1) printf ("       *[%d]: %x\n", i, self->data[i]);
-            else                               printf ("       *[%d]: %d\n", i, self->data[i]);
-                     
+            if (i == 0 || i == self->size - 1) printf ("\t*[%d]: %x\n", i, self->data[i]);
+            else                               printf ("\t*[%d]: %d\n", i, self->data[i]);         
         }
         else
         {
-            printf ("        [%d]: %x\n", i, self->data[i]);
+            printf ("\t [%d]: %x\n", i, self->data[i]);
         }
     }
 
@@ -187,13 +178,11 @@ lld StackVerificator (Stack *self)
 
     if (self == nullptr)
     {
-        // & |
-        // |=
-        err |= NULL_STACK; // 1???
+        err |= NULL_STACK;
         return err;
     }
     if (self->data == nullptr)
-        err |= NULL_DATA; // 2????
+        err |= NULL_DATA; 
     if (self->size < 2)
         err |= INVALID_SIZE;
     if (self->capacity < self->size)
@@ -206,7 +195,7 @@ lld StackVerificator (Stack *self)
         self->stack_info.data_corrupted = true;
     }
 
-    lld hash = HashFunc (self, sizeof (Stack), self->stack_info.hash_ignore_ptr, sizeof(ull_i) * 2);
+    lld hash = HashFunc (self, sizeof (Stack), self->stack_info.hash_ignore_ptr, sizeof(int64_t) * 2);
     lld subhash = HashFunc (self->data, sizeof (elem_t) * self->capacity, nullptr, 0);
 
     //printf ("\n\nDATA HASH IS: %lld\n\n\n", HashFunc (self->data, sizeof (elem_t) * self->capacity, nullptr, 0));
@@ -297,7 +286,7 @@ void PrintError (int error_code)
 }
 
 
-ull_i HashFunc (void* ptr, size_t size, void* skip_ptr, size_t skip_amount)
+int64_t HashFunc (void* ptr, size_t size, void* skip_ptr, size_t skip_amount)
 {
     assert (ptr != nullptr);
 
@@ -305,7 +294,7 @@ ull_i HashFunc (void* ptr, size_t size, void* skip_ptr, size_t skip_amount)
 
     Stack* tmp = (Stack*) ptr;
 
-    ull_i h = 0xFACFAC;
+    int64_t h = 0xFACFAC;
 
     char* cur_ptr = (char*) ptr;
     char* end_ptr = cur_ptr + size - 1;
