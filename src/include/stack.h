@@ -26,13 +26,21 @@ struct StackInfo
 
 struct Stack
 {
+    #ifdef CANARY
+    intmax_t left_cock;
+    #endif
+
     StackInfo stack_info;
 
     int size;
     int capacity;
     elem_t* data; 
     intmax_t hash;
-    intmax_t subhash;   
+    intmax_t subhash;  
+
+    #ifdef CANARY
+    intmax_t right_cock;
+    #endif 
 };
 
 
@@ -64,12 +72,6 @@ enum ERR_CODES
 };
 
 //----------------------------------------------------
-
-#ifdef CANARY
-    const int CANARY_COUNT = 2;
-#else 
-    const int CANARY_COUNT = 0;
-#endif
 
 const int RESIZE_OFFSET = 2;
 

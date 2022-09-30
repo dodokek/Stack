@@ -4,17 +4,17 @@
 
 void StackCtor_ (Stack* self, size_t capacity, const char* name, const char* filename, const char* funcname, int line)
 {
-    self->data = (elem_t *) calloc (sizeof(elem_t), capacity);
-
-    self->size = CANARY_COUNT; 
-    self->capacity = capacity;
-    
     #ifdef CANARY
 
-    self->data[0] = LEFT_COCK;    
-    self->data[1] = RIGHT_COCK;  
-
+    self->left_cock = LEFT_COCK;
+    self->right_cock = RIGHT_COCK;
+    
     #endif
+
+    self->data = (elem_t *) calloc (sizeof(elem_t), capacity);
+
+    self->size = 0; 
+    self->capacity = capacity;
 
     #ifdef HASH
 
@@ -28,8 +28,6 @@ void StackCtor_ (Stack* self, size_t capacity, const char* name, const char* fil
     self->stack_info.mother_file = filename;
     self->stack_info.name = name + 1;       // skips '&' symbol in the name
 
-    printf ("\n\nData ptr %p\n\n", self->data);
-
     #ifdef HASH
     DO_REHASH;
     #endif
@@ -41,24 +39,13 @@ elem_t StackPop (Stack* self)
     #ifdef DEBUG
 
     Verificate (self);
-    StackResize (self, DECREASE);
     StackDump (self);
 
     #endif
 
-    #ifdef CANARY
-
-    elem_t tmp = self->data[self->size - 2];
-    
-    self->data[self->size - 2] = RIGHT_COCK;
-
-    self->data[self->size - 1] = 0;
-
-    #else
+    StackResize (self, DECREASE);
 
     elem_t tmp = self->data[self->size - 1];
-
-    #endif
 
     self->size--;
 
@@ -75,21 +62,13 @@ void StackPush (Stack* self, elem_t value)
     #ifdef DEBUG
 
     Verificate (self);
-    StackResize (self, INCREASE);
     StackDump (self);
 
     #endif
 
-    #ifdef CANARY
+    StackResize (self, INCREASE);
 
-    self->data[self->size - 1] = value;
-    self->data[self->size]     = RIGHT_COCK;
-    
-    #else
-
-    self->data[self->size - 1] = value;
-    
-    #endif
+    self->data[self->size] = value;
 
     self->size++;
 
@@ -105,11 +84,6 @@ void* recalloc (void* ptr, int len_new, size_t size)
 
     ptr = (void*) realloc (ptr, len_new * size);
 
-    /*for (int i = len_old; i < len_new * size; i++)
-    {
-        new_ptr[i] = 0;
-    }*/
-
     fill_array ((elem_t*) (ptr + len_old), (elem_t*) (ptr + len_new * size), 0);
     
     return ptr;
@@ -118,6 +92,7 @@ void* recalloc (void* ptr, int len_new, size_t size)
 
 void StackResize (Stack* self, int mode)
 {
+    
     switch (mode)
     {
     case INCREASE:
@@ -134,7 +109,7 @@ void StackResize (Stack* self, int mode)
         break;
     
     case DECREASE:
-        if ((self->capacity / MEMORY_MULTIPLIER) - self->size > RESIZE_OFFSET)
+        if ((self->capacity / MEMORY_MULTIPLIER) - self->size >= RESIZE_OFFSET)
         {
             self->data = (elem_t*) recalloc (self->data, self->capacity / 2, sizeof (elem_t));
             self->capacity /= MEMORY_MULTIPLIER;
@@ -175,8 +150,6 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
 {
     Verificate (self);
     PutDividers();
-    
-    //Verificate (self); 
 
     printf ("At file: %s\n", filename);
 
@@ -220,17 +193,24 @@ intmax_t StackVerificator (Stack *self)
     }
     if (self->data == nullptr)
         err |= NULL_DATA; 
-    if (self->size < 2)
+    if (self->size <= 0)
         err |= INVALID_SIZE;
     if (self->capacity < self->size)
         err |= N_ENOUGH_SIZE;
     if (self->capacity <= 0)
         err |= INVALID_CAPACITY;
-    if (self->data[0] != LEFT_COCK || self->data[self->size-1] != RIGHT_COCK)
+
+    #ifdef CANARY    
+
+    if (self->left_cock != LEFT_COCK || self->right_cock != RIGHT_COCK)
     {
         err |= 32;
         self->stack_info.data_corrupted = true;
     }
+
+    #endif
+
+    #ifdef HASH
 
     Stack* tmp = self;
     tmp->hash = 0;
@@ -248,6 +228,8 @@ intmax_t StackVerificator (Stack *self)
         err +=STACK_MEMORY_CORRUPTION;
         self->stack_info.data_corrupted = true;        
     }
+
+    #endif
 
     return err; 
 }
