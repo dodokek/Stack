@@ -1,27 +1,31 @@
 
-
 #include "include/stack.h"
 
-int main()
+
+void StackCtor_ (Stack* self, size_t capacity, const char* name, const char* filename, const char* funcname, int line)
 {
-    Stack stk1 = {};
-    StackCtor(&stk1, 5);
+    self->data = (elem_t *) calloc (sizeof(elem_t), capacity);
+
+    self->size = CANARY_COUNT; // CANARY_COUNT
+    self->capacity = capacity;
+    self->hash = 0;
+    self->subhash = 0;
+
+    self->data[0] = LEFT_COCK;    
+    self->data[1] = RIGHT_COCK;  
+
     
-    for (int i = 0; i < 5; i++)
-    {
-        StackPush (&stk1, i);    
-    }
+    self->stack_info.hash_ignore_ptr = &(self->hash); 
+    self->stack_info.hash_skip = sizeof (ull_i); // ??
 
-    stk1.data[1] = 4545;
-    StackDump (&stk1);
+    self->stack_info.data_corrupted = false;
+    self->stack_info.mother_func = funcname;
+    self->stack_info.mother_file = filename;
+    self->stack_info.name = name + 1;       // skips '&' symbol in the name
 
-    for (int i = 0; i < 4; i++)
-    {
-        printf("Popped elem: %d\n", StackPop (&stk1));    
-    }
-    
+    printf ("\n\nData ptr %p\n\n", self->data);
 
-    StackDtor(&stk1);
+    HASH_FUNC;
 }
 
 
@@ -29,7 +33,7 @@ elem_t StackPop (Stack* self)
 {
     Verificate (self);
     StackResize (self, DECREASE);
-    StackDump(self);
+    StackDump (self);
 
     elem_t tmp = self->data[self->size - 2];
     
@@ -38,7 +42,7 @@ elem_t StackPop (Stack* self)
 
     self->size--;
 
-    HASH_STACK;
+    HASH_FUNC;
 
     return tmp;     
 }
@@ -54,30 +58,10 @@ void StackPush (Stack* self, elem_t value)
     self->data[self->size]     = RIGHT_COCK;
     self->size++;
 
-    HASH_STACK;
+    HASH_FUNC;
 }
 
 
-void StackCtor_ (Stack* self, size_t capacity, const char* name, const char* filename, const char* funcname, int line)
-{
-    self->data = (elem_t *) calloc (sizeof(elem_t), capacity);
-
-    self->size = 2;
-    self->capacity = capacity;
-    self->hash = 0;
-
-    self->data[0] = LEFT_COCK;    
-    self->data[1] = RIGHT_COCK;  
-
-    self->stack_info.data_corrupted = false;
-    self->stack_info.hash_ignore_ptr = &(self->hash);
-    self->stack_info.hash_skip = sizeof (ull_i);
-    self->stack_info.mother_func = funcname;
-    self->stack_info.name = name + 1;       // skips '&' symbol in the name
-    self->stack_info.mother_file = filename;
-
-    HASH_STACK;
-}
 
 
 void* recalloc (void* ptr, int len_old, int len_new, size_t size)
@@ -86,7 +70,7 @@ void* recalloc (void* ptr, int len_old, int len_new, size_t size)
 
     new_ptr = (void*) calloc (len_new, size);
 
-    memcpy (new_ptr, ptr, (len_old < len_new) ? len_old : len_new);
+    memcpy (new_ptr, ptr, min(len_old, len_new) * size);
     free (ptr);
     
     return new_ptr;
@@ -98,12 +82,15 @@ void StackResize (Stack* self, int mode)
     switch (mode)
     {
     case INCREASE:
+
+        // if needed??
         if (self->capacity - self->size < 2)
         {
             self->data = (elem_t*) recalloc (self->data, self->capacity, self->capacity * 2, sizeof (elem_t));
             self->capacity *= 2;
 
-            for (int i = self->size; i < self->capacity; i++)
+            // ??
+            for (int i = self->size + 1; i < self->capacity; i++)
             {
                 self->data[i] = POISON_NUM;
             }
@@ -112,12 +99,13 @@ void StackResize (Stack* self, int mode)
         break;
     
     case DECREASE:
+        // self->capacity / 8 == OFFSET_ON_DEL
         if (self->capacity - self->size > 4)
         {
-            self->data = (elem_t*) recalloc (self->data, self->capacity, self->capacity / 1.5, sizeof (elem_t));
-            self->capacity /= 1.5;
+            self->data = (elem_t*) recalloc (self->data, self->capacity, self->capacity / 2, sizeof (elem_t));
+            self->capacity /= 2;
 
-            for (int i = self->size; i < self->capacity; i++)
+            for (int i = self->size + 1; i < self->capacity; i++)
             {
                 self->data[i] = POISON_NUM;
             }
@@ -130,7 +118,7 @@ void StackResize (Stack* self, int mode)
         break;
     }
 
-    HASH_STACK;
+    HASH_FUNC;
         
 }
 
@@ -142,13 +130,16 @@ void StackDtor (Stack* self)
     self->capacity = -1;
     self->hash = 0;
 
-    StackInfo tmp = {};
+    StackInfo tmp = {}; // memset()
     self->stack_info = tmp;
 }
 
 
+//#define 200 // $$
+
 void StackDump_ (Stack* self, const char* filename, const char* funcname, int line)
 {
+    Verificate (self);
     PutDividers();
     
     //Verificate (self); 
@@ -156,24 +147,27 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
     printf ("At file: %s\n", filename);
 
     printf ("Observing stack[%p] - %s, function: %s (Line %d)):\n", self, self->stack_info.name, funcname, line);
-    printf ("%c Created at %s, file %s**\n", 200, self->stack_info.mother_func, self->stack_info.mother_file);
+    printf ("%c Created at %s, file %s\n", 200, self->stack_info.mother_func, self->stack_info.mother_file);
 
     printf ("    %cSize: %d\n", 204, self->size);
     printf ("    %cHash: %lld \n", 204, self->hash);
+    printf ("    %cHash-ignore ptr: %p \n", 204, self->stack_info.hash_ignore_ptr);
+    printf ("    %cSkip amount: %u \n", 204, self->stack_info.hash_skip);
     printf ("    %cCapacity: %d\n    %cData array:\n", 204, self->capacity, 200);
 
-
-    if (self->stack_info.data_corrupted) printf ("\n************Stack was corrupted, go fuck yourself.************\n\n");
+    if (self->stack_info.data_corrupted) 
+        printf ("\n************Stack was corrupted, stop cringe.************\n\n");
 
     for (int i = 0; i < self->capacity; i++)
     {
         if (i < self->size) 
         {
+            // printf("\t\t") 
+
+            // printf used elements
             if (i == 0 || i == self->size - 1) printf ("       *[%d]: %x\n", i, self->data[i]);
-            else
-            {
-                printf ("       *[%d]: %d\n", i, self->data[i]);
-            }         
+            else                               printf ("       *[%d]: %d\n", i, self->data[i]);
+                     
         }
         else
         {
@@ -189,29 +183,39 @@ lld StackVerificator (Stack *self)
 {
     lld err = 0;
     
-    printf ("-------------Verifying stack: %p---------------------\n", self);
+    printf ("---------------------Verifying stack: %p---------------------\n", self);
 
     if (self == nullptr)
     {
-        err += 1;
+        // & |
+        // |=
+        err |= NULL_STACK; // 1???
         return err;
     }
     if (self->data == nullptr)
-        err += 2;
-    if (self->size <= 0)
-        err += 4;
+        err |= NULL_DATA; // 2????
+    if (self->size < 2)
+        err |= INVALID_SIZE;
     if (self->capacity < self->size)
-        err += 8;
+        err |= N_ENOUGH_SIZE;
     if (self->capacity <= 0)
-        err += 16;
+        err |= INVALID_CAPACITY;
     if (self->data[0] != LEFT_COCK || self->data[self->size-1] != RIGHT_COCK)
-        err += 32;
-
-    lld hash = HashFunc (self->data, sizeof (self->data) * self->size);
-
-    if (self->hash != hash)
     {
-        err += 64;
+        err |= 32;
+        self->stack_info.data_corrupted = true;
+    }
+
+    lld hash = HashFunc (self, sizeof (Stack), self->stack_info.hash_ignore_ptr, sizeof(ull_i) * 2);
+    lld subhash = HashFunc (self->data, sizeof (elem_t) * self->capacity, nullptr, 0);
+
+    //printf ("\n\nDATA HASH IS: %lld\n\n\n", HashFunc (self->data, sizeof (elem_t) * self->capacity, nullptr, 0));
+    printf ("We have hash: %u and %u, ok?\n", hash, self->hash);
+    printf ("We have subhash: %u and %u, ok?\n", subhash, self->subhash);
+
+    if (self->hash != hash || self->subhash != subhash)
+    {
+        err +=STACK_MEMORY_CORRUPTION;
         self->stack_info.data_corrupted = true;        
     }
 
@@ -221,9 +225,9 @@ lld StackVerificator (Stack *self)
 
 void Verificate (Stack* self)
 {
-    lld err = StackVerificator(self);
+    lld err = StackVerificator (self);
 
-    printf("Error code = %d\n", err);
+    printf ("Error code = %d\n", err);
     PutErrCodes (err);
 
     if (err == 0) printf ("ok\n");
@@ -232,13 +236,14 @@ void Verificate (Stack* self)
 
 void PutErrCodes (lld err)
 {
+    // NUM_OF_ERRORS??
     for (int i = 0; i <= 10; i++)
     {
         int cur_bit = GetBit(err, i);
 
         if (cur_bit)
         {
-            PrintError(pow(2, i));
+            PrintError(1 << i);
         }
     }
 }
@@ -261,15 +266,19 @@ void PrintError (int error_code)
     case NULL_STACK:
         printf("NULL STACK POINTER\n");
         break;
+
     case NULL_DATA:
         printf("NULL DATA POINTER\n");
         break;
+
     case INVALID_SIZE:
         printf("INVALID SIZE, below zero probably.\n");
         break;
+
     case N_ENOUGH_SIZE:
         printf("N ENOUGH SIZE, Not enought size was located.\n");
         break;
+
     case INVALID_CAPACITY:
         printf("INVALID CAPACITY\n");
         break;
@@ -278,7 +287,7 @@ void PrintError (int error_code)
         printf("DATA ARRAY WAS CHANGED WTIHOUT THE PERMISSION, HANDS OFF!\n");
         break;
 
-    case STACK_MEMORY_CURRUPTION:
+    case STACK_MEMORY_CORRUPTION:
         printf("MEMORY GIVEN FOR CURRENT STACK WAS CORRUPTED, further actions are unsafe.\n");
         break;
 
@@ -288,17 +297,32 @@ void PrintError (int error_code)
 }
 
 
-ull_i HashFunc (void* ptr, size_t size)
+ull_i HashFunc (void* ptr, size_t size, void* skip_ptr, size_t skip_amount)
 {
     assert (ptr != nullptr);
+
+    printf ("Got ptr %p\n", ptr);
+
+    Stack* tmp = (Stack*) ptr;
 
     ull_i h = 0xFACFAC;
 
     char* cur_ptr = (char*) ptr;
     char* end_ptr = cur_ptr + size - 1;
 
-    for (; cur_ptr != end_ptr; cur_ptr++)
+    for (; cur_ptr < end_ptr; cur_ptr++)
     {
+        //if (tmp->data == (elem_t*) cur_ptr) printf ("\n\nEntering data zone:\n\n\n");
+        //printf ("Now at ptr: %p ", cur_ptr);
+        //printf ("Cycle\n");
+        if (cur_ptr == (char*) skip_ptr)
+        {
+            printf ("Time to skip ptr: %p\n", cur_ptr);
+
+            cur_ptr += skip_amount - 1;
+            continue;
+        }
+
         h = ((h % (1 << 30)) * 2 + *cur_ptr);
     }
 
@@ -317,3 +341,6 @@ void PutDividers()
     }
     putc ('\n', stdout);
 }
+
+
+
