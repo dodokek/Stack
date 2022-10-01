@@ -6,7 +6,7 @@ void StackCtor_ (Stack* self, size_t capacity, const char* name, const char* fil
 {
     #ifdef CANARY
 
-        self->left_cock = LEFT_COCK;
+        self->left_cock  = LEFT_COCK;
         self->right_cock = RIGHT_COCK;
     
     #endif
@@ -23,14 +23,20 @@ void StackCtor_ (Stack* self, size_t capacity, const char* name, const char* fil
 
     #endif
 
-    self->stack_info.data_corrupted = false;
-    self->stack_info.mother_func = funcname;
-    self->stack_info.mother_file = filename;
-    self->stack_info.name = name + 1;       // skips '&' symbol in the name
+    StackInfoCtor (self, name, filename, funcname);          
 
     #ifdef HASH
         DoRehash (self);
     #endif
+}
+
+
+void StackInfoCtor (Stack* self, const char* name, const char* filename, const char* funcname)
+{
+    self->stack_info.data_corrupted = false;
+    self->stack_info.mother_func = funcname;
+    self->stack_info.mother_file = filename;
+    self->stack_info.name = name + 1;        // skips '&' symbol in the name 
 }
 
 
@@ -59,7 +65,6 @@ elem_t StackPop (Stack* self)
 
 void StackPush (Stack* self, elem_t value)
 {
-    assert (self != nullptr);
 
     #ifdef DEBUG
 
@@ -84,38 +89,35 @@ void StackResize (Stack* self, int mode)
 { 
     assert (self != nullptr);
 
+    size_t elem_size = sizeof (elem_t);
+    //size_t new_size = 0;
+
     switch (mode)
     {
     case INCREASE:
-        if (self->capacity - self->size <= 1)
-        {
-            self->data = (elem_t*) recalloc (self->data, self->capacity * MEMORY_MULTIPLIER, sizeof (elem_t));
+        if (self->capacity - self->size <= 1) 
+        {   
             self->capacity *= MEMORY_MULTIPLIER;
-
-            #ifdef DEBUG
-                fill_array (self->data + self->size, self->data + self->capacity, POISON_NUM);
-            #endif
         }
-
         break;
     
     case DECREASE:
         if ((self->capacity / MEMORY_MULTIPLIER) - self->size >= RESIZE_OFFSET)
         {
-            self->data = (elem_t*) recalloc (self->data, self->capacity / 2, sizeof (elem_t));
             self->capacity /= MEMORY_MULTIPLIER;
-
-            #ifdef DEBUG
-                fill_array (self->data + self->size, self->data + self->capacity, POISON_NUM);
-            #endif
         }
-
         break;
 
     default:
         printf ("STACK RESIZE ERROR\n");
-        break;
+        return;
     }
+
+    self->data = (elem_t*) recalloc (self->data, self->capacity * elem_size);
+
+    #ifdef DEBUG
+        fill_array (self->data + self->size, self->data + self->capacity, POISON_NUM);
+    #endif
 
     #ifdef HASH
         DoRehash (self);
@@ -123,18 +125,20 @@ void StackResize (Stack* self, int mode)
 }
 
 
-void* recalloc (void* ptr, int len_new, size_t size)
+void* recalloc (void* ptr, size_t size_new)
 {
     int len_old = _msize (ptr);
+    
+    if (len_old == size_new) return ptr;
 
-    char* new_ptr = (char*) realloc (ptr, len_new * size);
+    ptr = (void*) realloc (ptr, size_new);
 
-    for (int i = len_old; i < len_new * size; i++)
+    for (int i = len_old; i < size_new; i++)
     {
-        new_ptr[i] = 0;
+        ((char*) ptr)[i] = 0;
     }
     
-    return (void*) new_ptr;
+    return ptr;
 }
 
 
@@ -195,12 +199,9 @@ intmax_t StackVerificator (Stack *self)
         err |= NULL_DATA; 
         return err;
     }   
-    if (self->size <= 0)
-        err |= INVALID_SIZE;
-    if (self->capacity < self->size)
-        err |= N_ENOUGH_SIZE;
-    if (self->capacity <= 0)
-        err |= INVALID_CAPACITY;
+    if (self->size     <= 0)          err |= INVALID_SIZE;
+    if (self->capacity <  self->size) err |= N_ENOUGH_SIZE;
+    if (self->capacity <= 0)          err |= INVALID_CAPACITY;
 
     #ifdef CANARY    
 
@@ -365,8 +366,8 @@ void StackDtor (Stack* self)
 {
     assert (self != nullptr);
 
-    free (self->data);
-    self->data = nullptr; 
+    FREE(self->data);
+
     self->size = -1;
     self->capacity = -1;
     self->hash = 0;
@@ -376,6 +377,12 @@ void StackDtor (Stack* self)
 
     StackInfo tmp = {}; // memset()
     self->stack_info = tmp;
+}
+
+
+bool is_valid (Stack *self)
+{
+    return self->stack_info.data_corrupted;
 }
 
 

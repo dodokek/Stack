@@ -47,6 +47,27 @@ struct Stack
 #define StackDump(X ) StackDump_ (X, __FILE__, __PRETTY_FUNCTION__,  __LINE__) 
 #define StackCtor(X, Y) StackCtor_ (X, Y, #X, __FILE__, __PRETTY_FUNCTION__, __LINE__)
 
+#ifdef HASH
+
+#define ON_HASH_PROTECTION(...)  __VA_AGRS__
+
+#else ONHASHPROTECTION(...) ;
+
+#endif
+
+//-----------------------------------------
+
+#ifdef CANARY
+
+#define ON_CANARY_PROTECTION(...)  __VA_AGRS__
+
+#else ONCANARYPROTECTION(...) ;
+
+#endif
+
+//-----------------------------------------
+
+#define FREE(X) (free(X), (X) = nullptr)
 
 enum RESIZE_MODE
 {
@@ -82,6 +103,8 @@ const int ERRORS_COUNT = 8;
 
 void StackCtor_ (Stack* self, size_t capacity, const char* name, const char* filename, const char* funcname, int line);
 
+void StackInfoCtor (Stack* self, const char* name, const char* filename, const char* funcname);
+
 void StackDtor (Stack* self);
 
 intmax_t StackVerificator (Stack* self);
@@ -104,7 +127,7 @@ void StackPush (Stack* self, elem_t value);
 
 void StackResize (Stack* self, int mode);
 
-void* recalloc (void* ptr, int len_new, size_t size);
+void* recalloc (void* ptr, size_t size_new);
 
 intmax_t HashFunc (void* ptr, size_t size);
 
@@ -113,5 +136,7 @@ void DoRehash (Stack* self);
 elem_t min (elem_t elem1, elem_t elem2);
 
 void fill_array (elem_t* cur_ptr, elem_t* end_ptr, elem_t filler);
+
+bool is_valid (Stack *self);
 
 #endif
