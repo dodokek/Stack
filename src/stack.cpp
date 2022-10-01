@@ -4,30 +4,28 @@
 
 void StackCtor_ (Stack* self, size_t capacity, const char* name, const char* filename, const char* funcname, int line)
 {
-    #ifdef CANARY
+    ON_CANARY_PROTECTION(
 
         self->left_cock  = LEFT_COCK;
         self->right_cock = RIGHT_COCK;
     
-    #endif
+    )
 
     self->data = (elem_t *) calloc (sizeof(elem_t), capacity);
 
     self->size = 0; 
     self->capacity = capacity;
 
-    #ifdef HASH
+    ON_HASH_PROTECTION(
 
         self->hash = 0;
         self->subhash = 0; 
 
-    #endif
+    )
 
     StackInfoCtor (self, name, filename, funcname);          
 
-    #ifdef HASH
-        DoRehash (self);
-    #endif
+    ON_HASH_PROTECTION(DoRehash (self));
 }
 
 
@@ -42,12 +40,12 @@ void StackInfoCtor (Stack* self, const char* name, const char* filename, const c
 
 elem_t StackPop (Stack* self)
 {
-    #ifdef DEBUG
+    ON_DEBUG(
 
         Verificate (self);
         StackDump (self);
 
-    #endif
+    )
 
     StackResize (self, DECREASE);
 
@@ -55,9 +53,7 @@ elem_t StackPop (Stack* self)
 
     self->size--;
 
-    #ifdef HASH
-        DoRehash (self);
-    #endif
+    ON_HASH_PROTECTION(DoRehash (self));
 
     return tmp;     
 }
@@ -66,12 +62,12 @@ elem_t StackPop (Stack* self)
 void StackPush (Stack* self, elem_t value)
 {
 
-    #ifdef DEBUG
+    ON_DEBUG(
 
         Verificate (self);
         StackDump (self);
 
-    #endif
+    )
 
     StackResize (self, INCREASE);
 
@@ -79,9 +75,7 @@ void StackPush (Stack* self, elem_t value)
 
     self->size++;
 
-    #ifdef HASH
-        DoRehash (self);
-    #endif
+    ON_HASH_PROTECTION(DoRehash (self));
 }
 
 
@@ -113,13 +107,11 @@ void StackResize (Stack* self, int mode)
 
     self->data = (elem_t*) recalloc (self->data, self->capacity * elem_size);
 
-    #ifdef DEBUG
-        fill_array (self->data + self->size, self->data + self->capacity, POISON_NUM);
-    #endif
-
-    #ifdef HASH
-        DoRehash (self);
-    #endif
+    
+    ON_DEBUG(fill_array (self->data + self->size, self->data + self->capacity, POISON_NUM));
+    
+    ON_HASH_PROTECTION(DoRehash (self));
+ 
 }
 
 
@@ -201,7 +193,7 @@ intmax_t StackVerificator (Stack *self)
     if (self->capacity <  self->size) err |= N_ENOUGH_SIZE;
     if (self->capacity <= 0)          err |= INVALID_CAPACITY;
 
-    #ifdef CANARY    
+    ON_CANARY_PROTECTION(   
 
         if (self->left_cock != LEFT_COCK || self->right_cock != RIGHT_COCK)
         {
@@ -209,9 +201,9 @@ intmax_t StackVerificator (Stack *self)
             self->stack_info.data_corrupted = true;
         }
 
-    #endif
+    )
 
-    #ifdef HASH
+    ON_HASH_PROTECTION(
 
         Stack tmp = *self;
         tmp.hash = 0;
@@ -232,7 +224,7 @@ intmax_t StackVerificator (Stack *self)
             self->stack_info.data_corrupted = true;        
         }
 
-    #endif
+    )
 
     return err; 
 }

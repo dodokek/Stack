@@ -49,9 +49,11 @@ struct Stack
 
 #ifdef HASH
 
-#define ON_HASH_PROTECTION(...)  __VA_AGRS__
+    #define ON_HASH_PROTECTION(...)  __VA_ARGS__
 
-#else ONHASHPROTECTION(...) ;
+#else
+
+    #define ONHASHPROTECTION(...) ;
 
 #endif
 
@@ -59,9 +61,23 @@ struct Stack
 
 #ifdef CANARY
 
-#define ON_CANARY_PROTECTION(...)  __VA_AGRS__
+    #define ON_CANARY_PROTECTION(...)  __VA_ARGS__
 
-#else ONCANARYPROTECTION(...) ;
+#else 
+
+    #define ONCANARYPROTECTION(...) ;
+
+#endif
+
+//-----------------------------------------
+
+#ifdef DEBUG
+
+    #define ON_DEBUG(...)  __VA_ARGS__
+
+#else
+ 
+    #define ON_DEBUG(...) ;
 
 #endif
 
