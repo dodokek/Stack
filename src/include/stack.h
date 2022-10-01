@@ -46,10 +46,6 @@ struct Stack
 
 #define StackDump(X ) StackDump_ (X, __FILE__, __PRETTY_FUNCTION__,  __LINE__) 
 #define StackCtor(X, Y) StackCtor_ (X, Y, #X, __FILE__, __PRETTY_FUNCTION__, __LINE__)
-  
-#define DO_REHASH self->hash = self->subhash = 0;                                           \
-                  self->hash = HashFunc (self, sizeof (Stack));                             \
-                  self->subhash =  HashFunc (self->data, sizeof (elem_t) * self->capacity);
 
 
 enum RESIZE_MODE
@@ -61,13 +57,14 @@ enum RESIZE_MODE
 
 enum ERR_CODES 
 {
-    NULL_STACK = 1,
-    NULL_DATA  = 2,
-    INVALID_SIZE = 4,
-    N_ENOUGH_SIZE = 8,
-    INVALID_CAPACITY = 16,
-    DATA_ACCESS_VIOLATION = 32,
-    STACK_MEMORY_CORRUPTION = 64
+    NULL_STACK = (1 << 1),
+    NULL_DATA  = (1 << 2),
+    INVALID_SIZE = (1 << 3),
+    N_ENOUGH_SIZE = (1 << 4),
+    INVALID_CAPACITY = (1 << 5),
+    DATA_ACCESS_VIOLATION = (1 << 6),
+    STACK_MEMORY_CORRUPTION = (1 << 7),
+    STACK_DATA_CORRUPTION = (1 << 8)
     // Don't forget to change ERROS_COUNT const
 };
 
@@ -77,7 +74,7 @@ const int RESIZE_OFFSET = 2;
 
 const int MEMORY_MULTIPLIER = 2;
 
-const int ERRORS_COUNT = 7;
+const int ERRORS_COUNT = 8;
 
 //----------------------------------------------------
 
@@ -110,6 +107,8 @@ void StackResize (Stack* self, int mode);
 void* recalloc (void* ptr, int len_new, size_t size);
 
 intmax_t HashFunc (void* ptr, size_t size);
+
+void DoRehash (Stack* self);
 
 elem_t min (elem_t elem1, elem_t elem2);
 

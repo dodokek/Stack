@@ -10,7 +10,8 @@ int main ()
     //Cringeeeeeee
     //stk1.data = (elem_t*)1;
 
-    stk1.data = NULL;
+    //Отрабатывает нормально
+    //stk1.data = NULL;
 
     //Исправлено
     //stk1.data[3] = 100; 
@@ -18,8 +19,8 @@ int main ()
     StackDump (&stk1);
 
     //Исправлено
-    stk1.stack_info.mother_file = "Ya lox";
-    stk1.capacity = 10;
+    //stk1.stack_info.mother_file = "Ya lox";
+    //stk1.capacity = 10;
            
 
     StackDump (&stk1);

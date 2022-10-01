@@ -6,8 +6,8 @@ void StackCtor_ (Stack* self, size_t capacity, const char* name, const char* fil
 {
     #ifdef CANARY
 
-    self->left_cock = LEFT_COCK;
-    self->right_cock = RIGHT_COCK;
+        self->left_cock = LEFT_COCK;
+        self->right_cock = RIGHT_COCK;
     
     #endif
 
@@ -18,8 +18,8 @@ void StackCtor_ (Stack* self, size_t capacity, const char* name, const char* fil
 
     #ifdef HASH
 
-    self->hash = 0;
-    self->subhash = 0; 
+        self->hash = 0;
+        self->subhash = 0; 
 
     #endif
 
@@ -29,7 +29,7 @@ void StackCtor_ (Stack* self, size_t capacity, const char* name, const char* fil
     self->stack_info.name = name + 1;       // skips '&' symbol in the name
 
     #ifdef HASH
-    DO_REHASH;
+        DoRehash (self);
     #endif
 }
 
@@ -38,8 +38,8 @@ elem_t StackPop (Stack* self)
 {
     #ifdef DEBUG
 
-    Verificate (self);
-    StackDump (self);
+        Verificate (self);
+        StackDump (self);
 
     #endif
 
@@ -50,7 +50,7 @@ elem_t StackPop (Stack* self)
     self->size--;
 
     #ifdef HASH
-    DO_REHASH;
+        DoRehash (self);
     #endif
 
     return tmp;     
@@ -59,10 +59,12 @@ elem_t StackPop (Stack* self)
 
 void StackPush (Stack* self, elem_t value)
 {
+    assert (self != nullptr);
+
     #ifdef DEBUG
 
-    Verificate (self);
-    StackDump (self);
+        Verificate (self);
+        StackDump (self);
 
     #endif
 
@@ -73,7 +75,50 @@ void StackPush (Stack* self, elem_t value)
     self->size++;
 
     #ifdef HASH
-    DO_REHASH;
+        DoRehash (self);
+    #endif
+}
+
+
+void StackResize (Stack* self, int mode)
+{ 
+    assert (self != nullptr);
+
+    switch (mode)
+    {
+    case INCREASE:
+        if (self->capacity - self->size <= 1)
+        {
+            self->data = (elem_t*) recalloc (self->data, self->capacity * MEMORY_MULTIPLIER, sizeof (elem_t));
+            self->capacity *= MEMORY_MULTIPLIER;
+
+            #ifdef DEBUG
+                fill_array (self->data + self->size, self->data + self->capacity, POISON_NUM);
+            #endif
+        }
+
+        break;
+    
+    case DECREASE:
+        if ((self->capacity / MEMORY_MULTIPLIER) - self->size >= RESIZE_OFFSET)
+        {
+            self->data = (elem_t*) recalloc (self->data, self->capacity / 2, sizeof (elem_t));
+            self->capacity /= MEMORY_MULTIPLIER;
+
+            #ifdef DEBUG
+                fill_array (self->data + self->size, self->data + self->capacity, POISON_NUM);
+            #endif
+        }
+
+        break;
+
+    default:
+        printf ("STACK RESIZE ERROR\n");
+        break;
+    }
+
+    #ifdef HASH
+        DoRehash (self);
     #endif
 }
 
@@ -90,63 +135,10 @@ void* recalloc (void* ptr, int len_new, size_t size)
 }
 
 
-void StackResize (Stack* self, int mode)
-{ 
-    switch (mode)
-    {
-    case INCREASE:
-        if (self->capacity - self->size <= 1)
-        {
-            self->data = (elem_t*) recalloc (self->data, self->capacity * MEMORY_MULTIPLIER, sizeof (elem_t));
-            self->capacity *= MEMORY_MULTIPLIER;
-
-            #ifdef DEBUG
-            fill_array (self->data + self->size, self->data + self->capacity, POISON_NUM);
-            #endif
-        }
-
-        break;
-    
-    case DECREASE:
-        if ((self->capacity / MEMORY_MULTIPLIER) - self->size >= RESIZE_OFFSET)
-        {
-            self->data = (elem_t*) recalloc (self->data, self->capacity / 2, sizeof (elem_t));
-            self->capacity /= MEMORY_MULTIPLIER;
-
-            #ifdef DEBUG
-            fill_array (self->data + self->size, self->data + self->capacity, POISON_NUM);
-            #endif
-        }
-
-        break;
-
-    default:
-        printf ("STACK RESIZE ERROR\n");
-        break;
-    }
-
-    #ifdef HASH
-    DO_REHASH;
-    #endif
-}
-
-
-void StackDtor (Stack* self)
-{
-    free (self->data);
-    self->data = nullptr; 
-    self->size = -1;
-    self->capacity = -1;
-    self->hash = 0;
-    self->subhash = 0;
-
-    StackInfo tmp = {}; // memset()
-    self->stack_info = tmp;
-}
-
-
 void StackDump_ (Stack* self, const char* filename, const char* funcname, int line)
 {
+    assert (self != nullptr && filename != nullptr && funcname != nullptr);
+
     Verificate (self);
     PutDividers();
 
@@ -184,6 +176,8 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
 
 intmax_t StackVerificator (Stack *self)
 {
+    assert (self != nullptr);
+
     intmax_t err = 0;
     
     printf ("---------------------Verifying stack: %p---------------------\n", self);
@@ -207,32 +201,34 @@ intmax_t StackVerificator (Stack *self)
 
     #ifdef CANARY    
 
-    if (self->left_cock != LEFT_COCK || self->right_cock != RIGHT_COCK)
-    {
-        err |= 32;
-        self->stack_info.data_corrupted = true;
-    }
+        if (self->left_cock != LEFT_COCK || self->right_cock != RIGHT_COCK)
+        {
+            err |= 32;
+            self->stack_info.data_corrupted = true;
+        }
 
     #endif
 
     #ifdef HASH
 
-    Stack tmp = *self;
-    tmp.hash = 0;
-    tmp.subhash = 0;
+        Stack tmp = *self;
+        tmp.hash = 0;
+        tmp.subhash = 0;
 
-    intmax_t hash = HashFunc (&tmp, sizeof (Stack));
-    intmax_t subhash = HashFunc (self->data, sizeof (elem_t) * self->capacity);
+        intmax_t hash = HashFunc (&tmp, sizeof (Stack));
+        intmax_t subhash = HashFunc (self->data, sizeof (elem_t) * self->capacity);
 
-    //printf ("\n\nDATA HASH IS: %intmax_t\n\n\n", HashFunc (self->data, sizeof (elem_t) * self->capacity, nullptr, 0));
-    printf ("We have hash: %I64d and %I64d, ok?\n", hash, self->hash);
-    printf ("We have subhash: %I64d and %I64d, ok?\n", subhash, self->subhash);
+        if (self->hash != hash)
+        {
+            err += STACK_MEMORY_CORRUPTION;
+            self->stack_info.data_corrupted = true;        
+        }
 
-    if (self->hash != hash || self->subhash != subhash)
-    {
-        err += STACK_MEMORY_CORRUPTION;
-        self->stack_info.data_corrupted = true;        
-    }
+        if (self->subhash != subhash)
+        {
+            err += STACK_DATA_CORRUPTION;
+            self->stack_info.data_corrupted = true;        
+        }
 
     #endif
 
@@ -242,6 +238,8 @@ intmax_t StackVerificator (Stack *self)
 
 void Verificate (Stack* self)
 {
+    assert (self != nullptr);
+
     intmax_t err = StackVerificator (self);
 
     printf ("Error code = %I64d\n", err);
@@ -280,32 +278,35 @@ void PrintError (int error_code)
     switch (error_code)
     {
     case NULL_STACK:
-        printf("NULL STACK POINTER\n");
+        printf ("NULL STACK POINTER\n");
         break;
 
     case NULL_DATA:
-        printf("NULL DATA POINTER\n");
+        printf ("NULL DATA POINTER\n");
         break;
 
     case INVALID_SIZE:
-        printf("INVALID SIZE, below zero probably.\n");
+        printf ("INVALID SIZE, below zero probably.\n");
         break;
 
     case N_ENOUGH_SIZE:
-        printf("N ENOUGH SIZE, Not enought size was located.\n");
+        printf ("N ENOUGH SIZE, Not enought size was located.\n");
         break;
 
     case INVALID_CAPACITY:
-        printf("INVALID CAPACITY\n");
+        printf ("INVALID CAPACITY\n");
         break;
 
     case DATA_ACCESS_VIOLATION:
-        printf("DATA ARRAY WAS CHANGED WTIHOUT THE PERMISSION, HANDS OFF!\n");
+        printf ("DATA ARRAY WAS CHANGED WTIHOUT THE PERMISSION, HANDS OFF!\n");
         break;
 
     case STACK_MEMORY_CORRUPTION:
-        printf("MEMORY GIVEN FOR CURRENT STACK WAS CORRUPTED, further actions are unsafe.\n");
+        printf ("MEMORY GIVEN FOR CURRENT STACK WAS CORRUPTED, further actions are unsafe.\n");
         break;
+
+    case STACK_DATA_CORRUPTION:
+        printf ("DATA MEMORY WAS CORRUPTED, further actions are unsafe");
 
     default:
         printf("Idk, man. Something spooky. Error code %d\n", error_code);
@@ -313,9 +314,18 @@ void PrintError (int error_code)
 }
 
 
+void DoRehash (Stack* self)
+{
+    assert (self != nullptr);
+
+    self->hash = self->subhash = 0;                                           
+    self->hash = HashFunc (self, sizeof (Stack));                             
+    self->subhash =  HashFunc (self->data, sizeof (elem_t) * self->capacity);    
+}
+
+
 intmax_t HashFunc (void* ptr, size_t size)
 {
-    //printf ("\n\nRecieved ptr %p\n\n", ptr);
     assert (ptr != nullptr);
 
     intmax_t h = 0xFACFAC;
@@ -328,10 +338,8 @@ intmax_t HashFunc (void* ptr, size_t size)
         h = ((h + (*cur_ptr)) * SALT) % (HASH_MOD);
     }
 
-    //printf ("Hash result: %intmax_t, size = %lu\n", h, size);
-
     return h;
-} 
+}
 
 
 elem_t min (elem_t elem1, elem_t elem2)
@@ -347,6 +355,24 @@ void fill_array (elem_t* cur_ptr, elem_t* end_ptr, elem_t filler)
         *cur_ptr = filler;
         cur_ptr++;
     }
+}
+
+
+void StackDtor (Stack* self)
+{
+    assert (self != nullptr);
+
+    free (self->data);
+    self->data = nullptr; 
+    self->size = -1;
+    self->capacity = -1;
+    self->hash = 0;
+    self->subhash = 0;
+    self->left_cock = POISON_NUM;
+    self->right_cock = POISON_NUM;
+
+    StackInfo tmp = {}; // memset()
+    self->stack_info = tmp;
 }
 
 
