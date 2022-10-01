@@ -91,8 +91,7 @@ void* recalloc (void* ptr, int len_new, size_t size)
 
 
 void StackResize (Stack* self, int mode)
-{
-    
+{ 
     switch (mode)
     {
     case INCREASE:
@@ -195,7 +194,10 @@ intmax_t StackVerificator (Stack *self)
         return err;
     }
     if (self->data == nullptr)
+    {
         err |= NULL_DATA; 
+        return err;
+    }   
     if (self->size <= 0)
         err |= INVALID_SIZE;
     if (self->capacity < self->size)

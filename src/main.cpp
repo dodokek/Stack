@@ -9,25 +9,20 @@ int main ()
 
     //Cringeeeeeee
     //stk1.data = (elem_t*)1;
-    //stk1.data = NULL;
 
-    //Ne poluchilos
+    stk1.data = NULL;
+
+    //Исправлено
     //stk1.data[3] = 100; 
 
-    //fprintf (stderr, "%d\n", stk1.stack_info.mother_file);
-
     StackDump (&stk1);
 
-    //Poluchilos
-    //printf ("\n\nWe have %p and %p \n\n\n\n", "You down", stk1.stack_info.mother_file);
-    //stk1.stack_info.mother_file = "Bebra amongus";
-    //stk1.capacity = 10;
-        
-    
+    //Исправлено
+    stk1.stack_info.mother_file = "Ya lox";
+    stk1.capacity = 10;
+           
 
     StackDump (&stk1);
-
-    //fprintf (stderr, "%d\n", stk1.stack_info.mother_file);
 
     //stk1.data[3] = 10;
     

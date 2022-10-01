@@ -33,10 +33,10 @@ struct Stack
     StackInfo stack_info;
 
     int size;
-    int capacity;
-    elem_t* data; 
+    int capacity; 
     intmax_t hash;
     intmax_t subhash;  
+    elem_t* data;
 
     #ifdef CANARY
     intmax_t right_cock;
