@@ -127,11 +127,14 @@ void* recalloc (void* ptr, int len_new, size_t size)
 {
     int len_old = _msize (ptr);
 
-    ptr = (void*) realloc (ptr, len_new * size);
+    char* new_ptr = (char*) realloc (ptr, len_new * size);
 
-    fill_array ((elem_t*) (ptr + len_old), (elem_t*) (ptr + len_new * size), 0);
+    for (int i = len_old; i < len_new * size; i++)
+    {
+        new_ptr[i] = 0;
+    }
     
-    return ptr;
+    return (void*) new_ptr;
 }
 
 
@@ -368,8 +371,8 @@ void StackDtor (Stack* self)
     self->capacity = -1;
     self->hash = 0;
     self->subhash = 0;
-    self->left_cock = POISON_NUM;
-    self->right_cock = POISON_NUM;
+    self->left_cock = 0;
+    self->right_cock = 0;
 
     StackInfo tmp = {}; // memset()
     self->stack_info = tmp;
