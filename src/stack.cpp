@@ -87,8 +87,6 @@ void StackPush (Stack* self, elem_t value)
 
 void StackResize (Stack* self, int mode)
 { 
-    assert (self != nullptr);
-
     size_t elem_size = sizeof (elem_t);
     //size_t new_size = 0;
 

@@ -14,8 +14,8 @@ int main ()
     //stk1.data = NULL;
 
     //Исправлено
-    //stk1.data[3] = 100; 
-    StackPush(nullptr);
+    //stk1.data[3] = 100;
+
     StackDump (&stk1);
 
     //Исправлено
