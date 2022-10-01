@@ -1,7 +1,7 @@
 #ifndef STACK_H
 #define STACK_H
 
-#define CANARY 1
+//#define CANARY 1
 #define HASH 1
 #define DEBUG 1
 
@@ -53,7 +53,7 @@ struct Stack
 
 #else
 
-    #define ONHASHPROTECTION(...) ;
+    #define ON_HASH_PROTECTION(...) ;
 
 #endif
 
@@ -65,7 +65,7 @@ struct Stack
 
 #else 
 
-    #define ONCANARYPROTECTION(...) ;
+    #define ON_CANARY_PROTECTION(...)  ;
 
 #endif
 

@@ -82,7 +82,6 @@ void StackPush (Stack* self, elem_t value)
 void StackResize (Stack* self, int mode)
 { 
     size_t elem_size = sizeof (elem_t);
-    //size_t new_size = 0;
 
     switch (mode)
     {
@@ -106,11 +105,10 @@ void StackResize (Stack* self, int mode)
     }
 
     self->data = (elem_t*) recalloc (self->data, self->capacity * elem_size);
-
+ 
+    ON_DEBUG( fill_array (self->data + self->size, self->data + self->capacity, POISON_NUM) );
     
-    ON_DEBUG(fill_array (self->data + self->size, self->data + self->capacity, POISON_NUM));
-    
-    ON_HASH_PROTECTION(DoRehash (self));
+    ON_HASH_PROTECTION( DoRehash (self) );
  
 }
 
@@ -147,8 +145,13 @@ void StackDump_ (Stack* self, const char* filename, const char* funcname, int li
     printf ("%cSize: %d\n", 204, self->size);
     printf ("%cHash: %I64d \n", 204, self->hash);
     printf ("%cSubhash: %I64d \n", 204, self->subhash);
-    printf ("%cLeft canary: %x\n", 204, self->left_cock);
-    printf ("%cRight canary: %x\n", 204, self->right_cock);
+    
+    ON_CANARY_PROTECTION
+    (
+        printf ("%cLeft canary: %x\n", 204, self->left_cock);
+        printf ("%cRight canary: %x\n", 204, self->right_cock);
+    )
+
     printf ("%cCapacity: %d\n%cData array:\n", 204, self->capacity, 200);
 
     if (self->stack_info.data_corrupted) 
@@ -362,8 +365,12 @@ void StackDtor (Stack* self)
     self->capacity = -1;
     self->hash = 0;
     self->subhash = 0;
-    self->left_cock = 0;
-    self->right_cock = 0;
+
+    ON_CANARY_PROTECTION
+    (
+        self->left_cock = 0;
+        self->right_cock = 0;
+    )
 
     StackInfo tmp = {}; // memset()
     self->stack_info = tmp;
